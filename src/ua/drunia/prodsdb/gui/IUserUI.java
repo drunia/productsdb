@@ -12,13 +12,9 @@ public interface IUserUI {
 	/**
 	 * Show error dialog, if error occured
 	 */
-	void showError(Exception e);
+	void error(Exception e);
 	/**
 	 * Confirmation dialog
 	 */
 	boolean confirm(String msg);
-	/**
-	 * Open/Save dialog
-	 */
-	File fileChoose(int type);
 }

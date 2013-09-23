@@ -21,16 +21,12 @@ public class ProductsDB implements IUserUI {
 	public void updateUI(){
 	}
 	
-	public void showError(Exception e) {
+	public void error(Exception e) {
 		System.err.println("Runtime error(s):\n" + e);
 	}
 	
 	public boolean confirm(String msg) {
 		return false;
-	}
-	
-	public File fileChoose(int type){
-		return null;
 	}
 
 }
