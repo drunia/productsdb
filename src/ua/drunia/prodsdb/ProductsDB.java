@@ -3,6 +3,8 @@ package ua.drunia.prodsdb;
 import ua.drunia.prodsdb.logic.Database;
 import ua.drunia.prodsdb.gui.IUserUI;
 
+import java.io.File;
+
 public class ProductsDB implements IUserUI {
 	public static void main(String[] args) {
 		/*
@@ -16,7 +18,7 @@ public class ProductsDB implements IUserUI {
 			System.out.println("Database initialized FAIL.");
 	}
 	
-	public void showData(String[] fields, String[] rows){
+	public void updateUI(){
 	}
 	
 	public void showError(Exception e) {
@@ -25,6 +27,10 @@ public class ProductsDB implements IUserUI {
 	
 	public boolean confirm(String msg) {
 		return false;
+	}
+	
+	public File fileChoose(int type){
+		return null;
 	}
 
 }

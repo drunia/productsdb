@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: ua.drunia.prodsdb.ProductsDB
+Class-Path: sqlite-jdbc-3.7.2.jar
