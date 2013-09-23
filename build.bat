@@ -29,6 +29,7 @@ if %errors% EQU 0 (
 	if "!answ!"=="y" java -jar %target%
 ) else (
 	echo Build filed... ((
+	pause >nul
 )
 
 exit /b %errors%
