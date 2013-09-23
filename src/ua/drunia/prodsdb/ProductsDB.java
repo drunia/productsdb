@@ -5,6 +5,8 @@ import ua.drunia.prodsdb.gui.IUserUI;
 
 import java.io.File;
 
+import java.sql.ResultSet;
+
 public class ProductsDB implements IUserUI {
 	public static void main(String[] args) {
 		/*
@@ -18,7 +20,8 @@ public class ProductsDB implements IUserUI {
 			System.out.println("Database initialized FAIL.");
 	}
 	
-	public void updateUI(){
+	public void updateUI(ResultSet rs){
+		System.out.println("updateUI");
 	}
 	
 	public void error(Exception e) {

@@ -4,11 +4,9 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 import org.sqlite.JDBC;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import ua.drunia.prodsdb.gui.IUserUI;
 
@@ -16,7 +14,6 @@ public class Database {
 	public static final int DB_VER = 1; 
 	private IUserUI ui;
 	public boolean initialized;
-	private String dbFileName; 
 	private Connection c;
 	private Statement st;
 	/**
@@ -32,21 +29,13 @@ public class Database {
 	 * 
 	 */
 	private boolean initDatabase() {
-		/**
-		 * Check database file
-		 */
-		if (!new File(dbFileName).exists()) 
-			if (!this.ui.confirm("DB file + " + dbFileName + " not found, would you like chose db file?")) {
-				this.ui.showError(new FileNotFoundException("Database file not found"));
-				return false;
-		} else {/* chose database file */}
 		/*
 		 * Try connect with db
 		 */
 		try {
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
-			ui.showError(e);
+			ui.error(e);
 			return false;
 		}
 		/*
@@ -85,9 +74,23 @@ public class Database {
 			
 			if (!c.isClosed()) c.close();			
 		} catch (SQLException e) {
-			ui.showError(e);
+			ui.error(e);
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Proxy method update/insert action to db
+	 */
+	public ResultSet executeUpdate(String sql) throws SQLException {
+		st.executeUpdate(sql);
+	}
+	
+	/**
+	 * Proxy method select action to db
+	 */
+	public ResultSet executeQuery(String sql) throws SQLException {
+		st.executeQuery(sql);
 	}
 }
