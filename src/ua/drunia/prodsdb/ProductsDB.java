@@ -8,6 +8,8 @@ import java.io.File;
 
 import java.sql.ResultSet;
 
+import javax.swing.JOptionPane;
+
 public class ProductsDB implements IUserUI {
 	public static void main(String[] args) {
 		//Init
@@ -31,7 +33,7 @@ public class ProductsDB implements IUserUI {
 	}
 	
 	public void error(Exception e) {
-		System.err.println("Runtime error(s):\n" + e);
+		JOptionPane.showMessageDialog(null, "Runtime error(s):\n" + e, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	public boolean confirm(String msg) {

@@ -5,8 +5,8 @@ import java.io.File;
 import java.sql.ResultSet;
 
 public interface IUserUI {
-	public final int DIALOG_OPEN_MODE = 0;
-	public final int DIALOG_SAVE_MODE = 1;
+	final static int DIALOG_OPEN_MODE = 0;
+	final static int DIALOG_SAVE_MODE = 1;
 	/**
 	 * Update UI, when data in database ready/change
 	 * @param rs - Prepared ResultSet

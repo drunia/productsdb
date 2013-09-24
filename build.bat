@@ -31,8 +31,8 @@ if %errors% EQU 0 (
 	color a
 	set /p answ="Run %target%? [y/n]:"
 	if "!answ!"=="y" (
-		java -jar %target%
 		color
+		java -jar %target%
 	)
 ) else (
 	color c

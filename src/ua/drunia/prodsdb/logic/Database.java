@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import org.sqlite.JDBC;
@@ -15,7 +16,6 @@ public class Database {
 	private IUserUI ui;
 	public boolean initialized;
 	private Connection c;
-	private Statement st;
 	private String dbFileName;
 	/**
 	 * Initialize sqllite database
@@ -27,7 +27,8 @@ public class Database {
 		initialized = initDatabase();
 	}
 	/**
-	 * 
+	 * Initialize database (create tables, if not exists)
+	 * @author drunia
 	 */
 	private boolean initDatabase() {
 		/*
@@ -44,7 +45,7 @@ public class Database {
 		 */
 		try {
 			c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);
-			st = c.createStatement();
+			Statement st = c.createStatement();
 			String sql = null;		
 			/*
 			 * dbconf table
@@ -72,7 +73,6 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
 			st.executeUpdate(sql);
-			
 			if (!c.isClosed()) c.close();			
 		} catch (SQLException e) {
 			ui.error(e);
@@ -83,15 +83,51 @@ public class Database {
 	
 	/**
 	 * Proxy method update/insert action to db
+	 * @author drunia
 	 */
-	public int executeUpdate(String sql) throws SQLException {
-		return st.executeUpdate(sql);
+	public int executeUpdate(String sql) {
+		int res = 0;
+		PreparedStatement pst = c.createStatement();
+		try {
+			res = st.executeUpdate(sql);
+		} catch (SQLException e) {
+			ui.error(e);
+		} finally {
+			if (!pst.isClosed) pst.close();
+		}
+		return res; 
+	}
+	/**
+	 * Proxy method update/insert action to db
+	 * @author drunia
+	 */
+	public int executeUpdate(String prepareSql, int[] indexes, Object[] data) {
+		int res = 0;
+		PreparedStatement pst = c.createStatement();
+		try {
+			res = st.executeUpdate();
+		} catch (SQLException e) {
+			ui.error(e);
+		} finally {
+			if (!pst.isClosed) pst.close();
+		}
+		return res; 
 	}
 	
 	/**
 	 * Proxy method select action to db
+	 * @author drunia
 	 */
-	public ResultSet executeQuery(String sql) throws SQLException {
-		return st.executeQuery(sql);
+	public ResultSet executeQuery(String sql) {
+		ResultSet rs = null;
+		PreparedStatement pst = c.createStatement();
+		try {
+			rs = st.executeQuery(sql);
+		} catch (SQLException e) {
+			ui.error(e);
+		} finally {
+			if (!pst.isClosed) pst.close();
+		}
+		return rs;
 	}
 }
