@@ -73,7 +73,7 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
 			st.executeUpdate(sql);
-			if (!c.isClosed()) c.close();			
+		    st.close();			
 		} catch (SQLException e) {
 			ui.error(e);
 			return false;
@@ -87,13 +87,12 @@ public class Database {
 	 */
 	public int executeUpdate(String sql) {
 		int res = 0;
-		PreparedStatement pst = c.createStatement();
 		try {
+			Statement st = c.createStatement();
 			res = st.executeUpdate(sql);
+			st.close();
 		} catch (SQLException e) {
 			ui.error(e);
-		} finally {
-			if (!pst.isClosed) pst.close();
 		}
 		return res; 
 	}
@@ -101,33 +100,49 @@ public class Database {
 	 * Proxy method update/insert action to db
 	 * @author drunia
 	 */
-	public int executeUpdate(String prepareSql, int[] indexes, Object[] data) {
+	public int executeUpdate(String preparedSql, Object[] parameters) {
 		int res = 0;
-		PreparedStatement pst = c.createStatement();
-		try {
-			res = st.executeUpdate();
+		try {		
+			PreparedStatement pst = c.prepareStatement(preparedSql);
+			for (int i = 0; i < parameters.length; i++) 
+				pst.setObject(i + 1, parameters[i]);
+			res = pst.executeUpdate();
+			pst.close();
 		} catch (SQLException e) {
 			ui.error(e);
-		} finally {
-			if (!pst.isClosed) pst.close();
-		}
+		} 
 		return res; 
 	}
-	
 	/**
 	 * Proxy method select action to db
 	 * @author drunia
 	 */
 	public ResultSet executeQuery(String sql) {
 		ResultSet rs = null;
-		PreparedStatement pst = c.createStatement();
 		try {
+			Statement st = c.createStatement();
 			rs = st.executeQuery(sql);
+			st.close();
 		} catch (SQLException e) {
 			ui.error(e);
-		} finally {
-			if (!pst.isClosed) pst.close();
-		}
+		} 
+		return rs;
+	}
+	/**
+	 * Proxy method select action to db
+	 * @author drunia
+	 */
+	public ResultSet executeQuery(String preparedSql, Object[] parameters) {
+		ResultSet rs = null;
+		try {
+			PreparedStatement pst = c.prepareStatement(preparedSql);
+			for (int i = 0; i < parameters.length; i++) 
+				pst.setObject(i + 1, parameters[i]);
+			rs = pst.executeQuery();
+			pst.close();
+		} catch (SQLException e) {
+			ui.error(e);
+		} 
 		return rs;
 	}
 }

@@ -21,8 +21,10 @@ public class ProductsDB implements IUserUI {
 		s.save();
 		
 		Database db = new Database(prodsdb, s.getParam("db.file"));
-		if (db.initialized) 
+		if (db.initialized) {
 			System.out.println("Database initialized OK.");
+			db.executeUpdate("delete from dbconf");
+		}
 		else
 			System.out.println("Database initialized FAIL.");
 	}
