@@ -14,6 +14,7 @@ set target=productsdb.jar
 set errors=0
 
 rem compile sources
+if not exist %classout% mkdir %classout%
 javac -sourcepath %sources% -classpath %classes% -d %classout% src/ua/drunia/prodsdb/ProductsDB.java
 set /a errors="%errors% + %ERRORLEVEL%"
 if %errors% EQU 0 echo Compile OK.
@@ -25,11 +26,14 @@ if %errors% EQU 0 echo Build OK.
 
 echo.
 if %errors% EQU 0 (
+	color a
 	set /p answ="Run %target%? [y/n]:"
 	if "!answ!"=="y" java -jar %target%
 ) else (
+	color c
 	echo Build filed... ((
 	pause >nul
 )
 
+color
 exit /b %errors%
