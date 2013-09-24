@@ -5,6 +5,7 @@ rem 23.09.2013 drunia
 
 setlocal enabledelayedexpansion
 
+cls
 cd /d "%~dp0"
 
 set classes=sqlite-jdbc-3.7.2.jar
@@ -28,7 +29,10 @@ echo.
 if %errors% EQU 0 (
 	color a
 	set /p answ="Run %target%? [y/n]:"
-	if "!answ!"=="y" java -jar %target%
+	if "!answ!"=="y" (
+		java -jar %target%
+		color
+	)
 ) else (
 	color c
 	echo Build filed... ((

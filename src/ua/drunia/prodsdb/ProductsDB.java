@@ -2,6 +2,7 @@ package ua.drunia.prodsdb;
 
 import ua.drunia.prodsdb.logic.Database;
 import ua.drunia.prodsdb.gui.IUserUI;
+import ua.drunia.prodsdb.logic.Settings;
 
 import java.io.File;
 
@@ -9,16 +10,21 @@ import java.sql.ResultSet;
 
 public class ProductsDB implements IUserUI {
 	public static void main(String[] args) {
-		/*
-		 * Init database
-		 */
+		//Init
 		ProductsDB prodsdb = new ProductsDB();
-		Database db = new Database(prodsdb, "products.db");
+		
+		Settings s = Settings.get(prodsdb);
+		System.out.println("Database filename = " + s.getParam("db.file"));
+		System.out.println("Database operations timeout = " + s.getParam("db.timeout"));
+		s.save();
+		
+		Database db = new Database(prodsdb, s.getParam("db.file"));
 		if (db.initialized) 
 			System.out.println("Database initialized OK.");
 		else
 			System.out.println("Database initialized FAIL.");
 	}
+	
 	
 	public void updateUI(ResultSet rs){
 		System.out.println("updateUI");

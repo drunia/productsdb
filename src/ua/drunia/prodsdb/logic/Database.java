@@ -16,6 +16,7 @@ public class Database {
 	public boolean initialized;
 	private Connection c;
 	private Statement st;
+	private String dbFileName;
 	/**
 	 * Initialize sqllite database
 	 * @param dbFileName - Path to database file
@@ -83,14 +84,14 @@ public class Database {
 	/**
 	 * Proxy method update/insert action to db
 	 */
-	public ResultSet executeUpdate(String sql) throws SQLException {
-		st.executeUpdate(sql);
+	public int executeUpdate(String sql) throws SQLException {
+		return st.executeUpdate(sql);
 	}
 	
 	/**
 	 * Proxy method select action to db
 	 */
 	public ResultSet executeQuery(String sql) throws SQLException {
-		st.executeQuery(sql);
+		return st.executeQuery(sql);
 	}
 }
