@@ -5,19 +5,23 @@ import java.io.File;
 import java.sql.ResultSet;
 
 public interface IUserUI {
-	static int DIALOG_OPEN_MODE = 0;
-	static int DIALOG_SAVE_MODE = 1;
+	public final int DIALOG_OPEN_MODE = 0;
+	public final int DIALOG_SAVE_MODE = 1;
 	/**
-	 * Update UI, when data changes
-	 * rs - java.sql.ResultSet - answer to ui query
+	 * Update UI, when data in database ready/change
+	 * @param rs - Prepared ResultSet
+	 * @author drunia
 	 */
     void updateUI(ResultSet rs);
 	/**
 	 * Show error dialog, if error occured
+	 * @author drunia
 	 */
 	void error(Exception e);
 	/**
-	 * Confirmation dialog
+	 * Confirmation dialog yes/no
+	 * @param msg - Query message
+	 * @author drunia
 	 */
 	boolean confirm(String msg);
 }

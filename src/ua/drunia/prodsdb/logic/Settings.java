@@ -1,5 +1,5 @@
 /**
- * @description Settings class (Singleton pattern)
+ * Settings class (Singleton pattern)
  * @since 24.09.2013
  * @author: drunia
  *

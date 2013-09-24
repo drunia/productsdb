@@ -12,11 +12,12 @@ set classes=sqlite-jdbc-3.7.2.jar
 set sources=src
 set classout=bin
 set target=productsdb.jar
+set mainclass=src/ua/drunia/prodsdb/ProductsDB.java
 set errors=0
 
 rem compile sources
 if not exist %classout% mkdir %classout%
-javac -sourcepath %sources% -classpath %classes% -d %classout% src/ua/drunia/prodsdb/ProductsDB.java
+javac -sourcepath %sources% -classpath %classes% -d %classout% %mainclass%
 set /a errors="%errors% + %ERRORLEVEL%"
 if %errors% EQU 0 echo Compile OK.
 
