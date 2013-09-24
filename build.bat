@@ -1,6 +1,6 @@
 @echo off
 
-rem Build productsdb.jar
+rem Build jar-app script
 rem 23.09.2013 drunia
 
 setlocal enabledelayedexpansion
