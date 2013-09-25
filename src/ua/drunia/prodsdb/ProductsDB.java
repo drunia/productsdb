@@ -27,6 +27,20 @@ public class ProductsDB implements IUserUI {
 		}
 		else
 			System.out.println("Database initialized FAIL.");
+		
+		//test
+		javax.swing.JFrame f = new javax.swing.JFrame();
+		f.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+		f.setSize(500, 500);
+		javax.swing.JButton[] b = new javax.swing.JButton[4]; 
+		for (int i = 0; i < 4; i++) {
+			b[i] = new javax.swing.JButton("Button" + i);
+			b[i].setPreferredSize(new java.awt.Dimension(200, 200));
+		}
+		f.add(b[0], java.awt.BorderLayout.PAGE_START);
+		f.add(b[1], java.awt.BorderLayout.LINE_END);
+		f.add(b[2], java.awt.BorderLayout.PAGE_END);
+		//f.setVisible(true);
 	}
 	
 	
