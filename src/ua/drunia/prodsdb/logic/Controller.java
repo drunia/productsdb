@@ -6,8 +6,8 @@
 package ua.drunia.prodsdb.logic;
 
 public abstract class Controller {
-	private Database db;
-	private IUserUI ui;
+	protected Database db;
+	protected IUserUI ui;
 	/**
 	 * Default constructor
 	 * @param db - initialized database

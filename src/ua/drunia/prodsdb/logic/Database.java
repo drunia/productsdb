@@ -16,7 +16,9 @@ public class Database {
 	private IUserUI ui;
 	public boolean initialized;
 	private Connection c;
+	private Statement st;
 	private String dbFileName;
+	
 	/**
 	 * Initialize sqllite database
 	 * @param dbFileName - Path to database file
@@ -26,6 +28,7 @@ public class Database {
 		this.dbFileName = dbFileName;
 		initialized = initDatabase();
 	}
+	
 	/**
 	 * Initialize database (create tables, if not exists)
 	 * @author drunia
@@ -45,13 +48,18 @@ public class Database {
 		 */
 		try {
 			c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);
-			Statement st = c.createStatement();
+			c.setAutoCommit(false);
+		    st = c.createStatement();
 			String sql = null;		
 			/*
 			 * dbconf table
 			 */ 
-			sql = "CREATE TABLE IF NOT EXISTS dbconf (db_ver INTEGER NOT NULL);";
+			sql = "CREATE TABLE IF NOT EXISTS dbconf " +
+				"(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+				"db_ver INTEGER NOT NULL); " +
+				"INSERT INTO dbconf (db_ver) VALUES (1);";
 			st.executeUpdate(sql);
+			c.commit();
 			/*
 			 * products table
 			 */ 
@@ -59,6 +67,7 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"product_name TEXT NOT NULL);";
 			st.executeUpdate(sql);
+			c.commit();
 			/*
 			 * clients table
 			 */ 
@@ -66,6 +75,7 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"client_name TEXT NOT NULL);";
 			st.executeUpdate(sql);
+			c.commit();
 			/*
 			 * shoppinng table
 			 */ 
@@ -73,12 +83,57 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
 			st.executeUpdate(sql);
-		    st.close();			
+			c.commit();
+		    st.close();	
+			//c.close();
 		} catch (SQLException e) {
 			ui.error(e);
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Commit actions
+	 * @author drunia
+	 */
+	 public void commit() {
+		if (initialized) 
+			try {
+				c.commit();
+			} catch (SQLException e) {
+				ui.error(e);
+			}
+	 }
+	 
+	 /**
+	  * Rollback actions
+	  * @author drunia
+	  */
+	 public void rollback() {
+		if (initialized)
+		try {
+				c.rollback();
+			} catch (SQLException e) {
+				ui.error(e);
+			}
+	 }
+	
+	/**
+	 * Getting the database version
+	 * @author drunia
+	 */
+	public int getVersion() {
+		int res = -1;
+		String sql = "SELECT db_ver FROM dbconf WHERE " + 
+			"id = (SELECT MAX(id) FROM dbconf);";
+		ResultSet rs = executeQuery(sql);
+		try {
+			res = rs.getInt(1);
+		} catch (SQLException e) {
+			ui.error(e);
+		}
+		return res;
 	}
 	
 	/**
@@ -96,6 +151,7 @@ public class Database {
 		}
 		return res; 
 	}
+	
 	/**
 	 * Proxy method update/insert action to db
 	 * @param preparedSql - prepared sql query like
@@ -116,6 +172,7 @@ public class Database {
 		} 
 		return res; 
 	}
+	
 	/**
 	 * Proxy method select action to db
 	 * @author drunia
@@ -123,14 +180,17 @@ public class Database {
 	public ResultSet executeQuery(String sql) {
 		ResultSet rs = null;
 		try {
-			Statement st = c.createStatement();
+			//c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);
+			st = c.createStatement();
 			rs = st.executeQuery(sql);
-			st.close();
+			ui.message(String.valueOf(rs.next()));
+			//st.close();
 		} catch (SQLException e) {
 			ui.error(e);
 		} 
 		return rs;
 	}
+	
 	/**
 	 * Proxy method select action to db
 	 * @param preparedSql - prepared sql query like

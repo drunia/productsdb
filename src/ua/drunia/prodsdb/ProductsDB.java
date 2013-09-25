@@ -23,7 +23,6 @@ public class ProductsDB implements IUserUI {
 		Database db = new Database(prodsdb, s.getParam("db.file"));
 		if (db.initialized) {
 			System.out.println("Database initialized OK.");
-			db.executeUpdate("delete from dbconf");
 		}
 		else
 			System.out.println("Database initialized FAIL.");
@@ -41,6 +40,10 @@ public class ProductsDB implements IUserUI {
 		f.add(b[1], java.awt.BorderLayout.LINE_END);
 		f.add(b[2], java.awt.BorderLayout.PAGE_END);
 		//f.setVisible(true);
+		
+		prodsdb.message("Database version: " + String.valueOf(db.getVersion()));
+		prodsdb.message("Database version: " + String.valueOf(db.executeUpdate("insert into dbconf (db_ver) values (122)")));
+		prodsdb.message("Database version: " + String.valueOf(db.getVersion()));
 	}
 	
 	
@@ -59,7 +62,7 @@ public class ProductsDB implements IUserUI {
 	}
 	
 	public void message(String msg){
-		System.out.println("Message: " + msg);
+		JOptionPane.showMessageDialog(null, "Message:\n" + msg, "Message", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	public File chooseFile(String promptMsg, int dialogMode) {
