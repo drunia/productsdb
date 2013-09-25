@@ -41,7 +41,7 @@ public class ProductsDB implements IUserUI {
 		f.add(b[2], java.awt.BorderLayout.PAGE_END);
 		//f.setVisible(true);
 		
-		db.executeUpdate("insert into dbconf (db_ver) values (" + (int) (Math.random * 10000) + ")");
+		db.executeUpdate("insert into dbconf (db_ver) values (" + (int) (Math.random() * 10000) + ")");
 		db.commit();
 		prodsdb.message("Database version: " + String.valueOf(db.getVersion()));
 	}

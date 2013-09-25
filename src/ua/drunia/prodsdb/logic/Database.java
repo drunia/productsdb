@@ -56,8 +56,7 @@ public class Database {
 			 */ 
 			sql = "CREATE TABLE IF NOT EXISTS dbconf " +
 				"(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-				"db_ver INTEGER NOT NULL); " +
-				"INSERT INTO dbconf (db_ver) VALUES (1);";
+				"db_ver INTEGER NOT NULL);";
 			st.executeUpdate(sql);
 			c.commit();
 			/*
