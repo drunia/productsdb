@@ -85,7 +85,6 @@ public class Database {
 			st.executeUpdate(sql);
 			c.commit();
 		    st.close();	
-			//c.close();
 		} catch (SQLException e) {
 			ui.error(e);
 			return false;
@@ -145,7 +144,6 @@ public class Database {
 		try {
 			Statement st = c.createStatement();
 			res = st.executeUpdate(sql);
-			st.close();
 		} catch (SQLException e) {
 			ui.error(e);
 		}
@@ -166,7 +164,6 @@ public class Database {
 			for (int i = 0; i < parameters.length; i++) 
 				pst.setObject(i + 1, parameters[i]);
 			res = pst.executeUpdate();
-			pst.close();
 		} catch (SQLException e) {
 			ui.error(e);
 		} 
@@ -180,11 +177,8 @@ public class Database {
 	public ResultSet executeQuery(String sql) {
 		ResultSet rs = null;
 		try {
-			//c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);
 			st = c.createStatement();
 			rs = st.executeQuery(sql);
-			ui.message(String.valueOf(rs.next()));
-			//st.close();
 		} catch (SQLException e) {
 			ui.error(e);
 		} 
@@ -205,7 +199,6 @@ public class Database {
 			for (int i = 0; i < parameters.length; i++) 
 				pst.setObject(i + 1, parameters[i]);
 			rs = pst.executeQuery();
-			pst.close();
 		} catch (SQLException e) {
 			ui.error(e);
 		} 
