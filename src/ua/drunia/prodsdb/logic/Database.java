@@ -98,6 +98,9 @@ public class Database {
 	}
 	/**
 	 * Proxy method update/insert action to db
+	 * @param preparedSql - prepared sql query like
+	 * "select * from a where a.b = ? and a.c = ?"
+	 * @param parameters - array of value of "?" in queue
 	 * @author drunia
 	 */
 	public int executeUpdate(String preparedSql, Object[] parameters) {
@@ -130,6 +133,9 @@ public class Database {
 	}
 	/**
 	 * Proxy method select action to db
+	 * @param preparedSql - prepared sql query like
+	 * "select * from a where a.b = ? and a.c = ?"
+	 * @param parameters - array of value of "?" in queue
 	 * @author drunia
 	 */
 	public ResultSet executeQuery(String preparedSql, Object[] parameters) {

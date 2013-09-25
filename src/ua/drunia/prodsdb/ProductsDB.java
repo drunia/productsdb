@@ -30,6 +30,8 @@ public class ProductsDB implements IUserUI {
 	}
 	
 	
+	
+	
 	public void updateUI(ResultSet rs){
 		System.out.println("updateUI");
 	}
@@ -41,5 +43,12 @@ public class ProductsDB implements IUserUI {
 	public boolean confirm(String msg) {
 		return false;
 	}
+	
+	public void message(String msg){
+		System.out.println("Message: " + msg);
+	}
 
+	public File chooseFile(String promptMsg, int dialogMode) {
+		return null;
+	}
 }
