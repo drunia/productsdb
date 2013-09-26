@@ -26,14 +26,34 @@ public class Database {
 	public Database(IUserUI ui, String dbFileName) {
 		this.ui = ui;
 		this.dbFileName = dbFileName;
-		initialized = initDatabase();
+		initDatabase();
+	}
+	
+	/**
+	 * Open database connection
+	 * After use SQL operations with db need to call commit() method
+	 * @return Connection
+	 * @author drunia
+	 */
+	public void beginTransaction() {
+		try {
+			if ((c != null) && (!c.isClosed())) {
+				ui.error(new SQLException("Old connection to db not closed!\n" +
+					"Try db.commit() or db.rollback(), do it!"));
+			} else {
+				c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);	
+				c.setAutoCommit(false);
+			}
+		} catch (SQLException e) {
+			ui.error(e);
+		}
 	}
 	
 	/**
 	 * Initialize database (create tables, if not exists)
 	 * @author drunia
 	 */
-	private boolean initDatabase() {
+	private void initDatabase() {
 		/*
 		 * Try connect with db
 		 */
@@ -41,14 +61,12 @@ public class Database {
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
 			ui.error(e);
-			return false;
 		}
 		/*
 		 * Initialize tables
 		 */
-		try {
-			c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);
-			c.setAutoCommit(false);
+		try {			
+			beginTransaction();
 		    st = c.createStatement();
 			String sql = null;		
 			/*
@@ -58,7 +76,6 @@ public class Database {
 				"(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
 				"db_ver INTEGER NOT NULL);";
 			st.executeUpdate(sql);
-			c.commit();
 			/*
 			 * products table
 			 */ 
@@ -66,7 +83,6 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"product_name TEXT NOT NULL);";
 			st.executeUpdate(sql);
-			c.commit();
 			/*
 			 * clients table
 			 */ 
@@ -74,7 +90,6 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"client_name TEXT NOT NULL);";
 			st.executeUpdate(sql);
-			c.commit();
 			/*
 			 * shoppinng table
 			 */ 
@@ -82,36 +97,37 @@ public class Database {
 				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 				"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
 			st.executeUpdate(sql);
-			c.commit();
-		    st.close();	
+			st.close();	
 		} catch (SQLException e) {
 			ui.error(e);
-			return false;
 		}
-		return true;
+		initialized = true;
+		commit();
 	}
 	
 	/**
-	 * Commit actions
+	 * Commit actions and close connection to db for multi user access in write mode
 	 * @author drunia
 	 */
 	 public void commit() {
 		if (initialized) 
 			try {
 				c.commit();
+				c.close();
 			} catch (SQLException e) {
 				ui.error(e);
 			}
 	 }
 	 
 	 /**
-	  * Rollback actions
+	  * Rollback actions and close connection to db for multi user access in write mode
 	  * @author drunia
 	  */
 	 public void rollback() {
 		if (initialized)
-		try {
+			try {
 				c.rollback();
+				c.close();
 			} catch (SQLException e) {
 				ui.error(e);
 			}
@@ -151,8 +167,7 @@ public class Database {
 	
 	/**
 	 * Proxy method update/insert action to db
-	 * @param preparedSql - prepared sql query like
-	 * "select * from a where a.b = ? and a.c = ?"
+	 * @param preparedSql - prepared sql query like "select * from a where a.b = ? and a.c = ?"
 	 * @param parameters - array of value of "?" in queue
 	 * @author drunia
 	 */
@@ -186,14 +201,13 @@ public class Database {
 	
 	/**
 	 * Proxy method select action to db
-	 * @param preparedSql - prepared sql query like
-	 * "select * from a where a.b = ? and a.c = ?"
+	 * @param preparedSql - prepared sql query like "select * from a where a.b = ? and a.c = ?"
 	 * @param parameters - array of value of "?" in queue
 	 * @author drunia
 	 */
 	public ResultSet executeQuery(String preparedSql, Object[] parameters) {
 		ResultSet rs = null;
-		try {
+		try {;
 			PreparedStatement pst = c.prepareStatement(preparedSql);
 			for (int i = 0; i < parameters.length; i++) 
 				pst.setObject(i + 1, parameters[i]);

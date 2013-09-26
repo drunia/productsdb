@@ -26,6 +26,8 @@ public class ProductsDB implements IUserUI {
 		}
 		else
 			System.out.println("Database initialized FAIL.");
+			
+		
 		
 		//test
 		javax.swing.JFrame f = new javax.swing.JFrame();
@@ -39,11 +41,17 @@ public class ProductsDB implements IUserUI {
 		f.add(b[0], java.awt.BorderLayout.PAGE_START);
 		f.add(b[1], java.awt.BorderLayout.LINE_END);
 		f.add(b[2], java.awt.BorderLayout.PAGE_END);
-		//f.setVisible(true);
+		f.setVisible(true);
 		
-		db.executeUpdate("insert into dbconf (db_ver) values (" + (int) (Math.random() * 10000) + ")");
-		db.commit();
-		prodsdb.message("Database version: " + String.valueOf(db.getVersion()));
+		
+		
+		db.beginTransaction();
+		//for (int i = 0; i < 1000000; i++) 
+			db.executeUpdate("insert into dbconf (db_ver) values (" + (int) (Math.random() * 10000) + ")");
+		String dbVer = String.valueOf(db.getVersion());
+		db.rollback();
+		prodsdb.message(dbVer);
+		
 	}
 	
 	
