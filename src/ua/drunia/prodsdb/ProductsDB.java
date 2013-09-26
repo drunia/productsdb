@@ -46,10 +46,10 @@ public class ProductsDB implements IUserUI {
 		
 		
 		db.beginTransaction();
-		//for (int i = 0; i < 1000000; i++) 
-			db.executeUpdate("insert into dbconf (db_ver) values (" + (int) (Math.random() * 10000) + ")");
+		//for (int i = 0; i < 100; i++) 
+		//	db.executeUpdate("insert into dbconf (db_ver) values (" + i + ")");
 		String dbVer = String.valueOf(db.getVersion());
-		db.rollback();
+		db.commit();
 		prodsdb.message(dbVer);
 		
 	}

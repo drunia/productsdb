@@ -126,7 +126,7 @@ public class Database {
 	 public void rollback() {
 		if (initialized)
 			try {
-				c.rollback();
+				//c.rollback();
 				c.close();
 			} catch (SQLException e) {
 				ui.error(e);
@@ -136,14 +136,16 @@ public class Database {
 	/**
 	 * Getting the database version
 	 * @author drunia
+	 * @return int -1 table is empty or version of db
 	 */
 	public int getVersion() {
 		int res = -1;
 		String sql = "SELECT db_ver FROM dbconf WHERE " + 
 			"id = (SELECT MAX(id) FROM dbconf);";
-		ResultSet rs = executeQuery(sql);
 		try {
-			res = rs.getInt(1);
+			int rowsCount = 
+				executeQuery("SELECT COUNT(id) FROM dbconf;").getInt(1); 
+			if (rowsCount > 0) res = executeQuery(sql).getInt(1);
 		} catch (SQLException e) {
 			ui.error(e);
 		}
