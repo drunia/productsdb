@@ -41,16 +41,17 @@ public class ProductsDB implements IUserUI {
 		f.add(b[0], java.awt.BorderLayout.PAGE_START);
 		f.add(b[1], java.awt.BorderLayout.LINE_END);
 		f.add(b[2], java.awt.BorderLayout.PAGE_END);
-		f.setVisible(true);
+		//f.setVisible(true);
 		
 		
 		
-		db.beginTransaction();
-		//for (int i = 0; i < 100; i++) 
-		//	db.executeUpdate("insert into dbconf (db_ver) values (" + i + ")");
-		String dbVer = String.valueOf(db.getVersion());
-		db.commit();
-		prodsdb.message(dbVer);
+		if (db.beginTransaction()) {
+			//for (int i = 0; i < 100; i++) 
+			//	db.executeUpdate("insert into dbconf (db_ver) values (" + i + ")");
+			String dbVer = String.valueOf(db.getVersion());
+			db.commit();
+			prodsdb.message("Current local version db: " + dbVer);
+		} 
 		
 	}
 	

@@ -26,7 +26,32 @@ public class Database {
 	public Database(IUserUI ui, String dbFileName) {
 		this.ui = ui;
 		this.dbFileName = dbFileName;
-		initDatabase();
+		if (initialized = initDatabase()) {
+			DatabaseUpdater dbup = new DatabaseUpdater(this);
+			try {
+				if (dbup.update()) ui.message("Update OK to version: " + Database.DB_VER);
+			} catch (SQLException e) {
+				ui.error(e);
+			}
+		}
+	}
+	
+	/**
+	 * Initialize database (create tables, if not exists)
+	 * @author drunia
+	 */
+	private boolean initDatabase() {
+		/*
+		 * Try init db, load driver
+		 */
+		try {
+			Class.forName("org.sqlite.JDBC");
+			return true;
+		} catch (ClassNotFoundException e) {
+			ui.error(e);
+			return false;
+		}
+		
 	}
 	
 	/**
@@ -35,74 +60,21 @@ public class Database {
 	 * @return Connection
 	 * @author drunia
 	 */
-	public void beginTransaction() {
+	public boolean beginTransaction() {
 		try {
 			if ((c != null) && (!c.isClosed())) {
 				ui.error(new SQLException("Old connection to db not closed!\n" +
 					"Try db.commit() or db.rollback(), do it!"));
+				return false;	
 			} else {
 				c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);	
 				c.setAutoCommit(false);
 			}
 		} catch (SQLException e) {
 			ui.error(e);
+			return false;
 		}
-	}
-	
-	/**
-	 * Initialize database (create tables, if not exists)
-	 * @author drunia
-	 */
-	private void initDatabase() {
-		/*
-		 * Try connect with db
-		 */
-		try {
-			Class.forName("org.sqlite.JDBC");
-		} catch (ClassNotFoundException e) {
-			ui.error(e);
-		}
-		/*
-		 * Initialize tables
-		 */
-		try {			
-			beginTransaction();
-		    st = c.createStatement();
-			String sql = null;		
-			/*
-			 * dbconf table
-			 */ 
-			sql = "CREATE TABLE IF NOT EXISTS dbconf " +
-				"(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-				"db_ver INTEGER NOT NULL);";
-			st.executeUpdate(sql);
-			/*
-			 * products table
-			 */ 
-			sql = "CREATE TABLE IF NOT EXISTS products (" + 
-				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-				"product_name TEXT NOT NULL);";
-			st.executeUpdate(sql);
-			/*
-			 * clients table
-			 */ 
-			sql = "CREATE TABLE IF NOT EXISTS clients (" + 
-				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-				"client_name TEXT NOT NULL);";
-			st.executeUpdate(sql);
-			/*
-			 * shoppinng table
-			 */ 
-			sql = "CREATE TABLE IF NOT EXISTS shopping (" + 
-				"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-				"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
-			st.executeUpdate(sql);
-			st.close();	
-		} catch (SQLException e) {
-			ui.error(e);
-		}
-		initialized = true;
-		commit();
+		return true;
 	}
 	
 	/**
@@ -136,15 +108,14 @@ public class Database {
 	/**
 	 * Getting the database version
 	 * @author drunia
-	 * @return int -1 table is empty or version of db
+	 * @return int 0 table is not exist or version of db
 	 */
 	public int getVersion() {
-		int res = -1;
-		String sql = "SELECT db_ver FROM dbconf WHERE " + 
-			"id = (SELECT MAX(id) FROM dbconf);";
+		int res = 0;
+		String sql = "SELECT db_ver FROM dbconf;";
 		try {
 			int rowsCount = 
-				executeQuery("SELECT COUNT(id) FROM dbconf;").getInt(1); 
+				executeQuery("SELECT COUNT(name) FROM sqlite_master WHERE name = 'dbconf';").getInt(1); 
 			if (rowsCount > 0) res = executeQuery(sql).getInt(1);
 		} catch (SQLException e) {
 			ui.error(e);
