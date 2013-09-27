@@ -5,8 +5,7 @@ import java.io.File;
 import java.sql.ResultSet;
 
 public interface IUserUI {
-	final static int DIALOG_OPEN_MODE = 0;
-	final static int DIALOG_SAVE_MODE = 1;
+    enum DialogType {OPEN, SAVE};
 	/**
 	 * Update UI, when data in database ready/change
 	 * @param rs - prepared ResultSet from db
@@ -36,5 +35,5 @@ public interface IUserUI {
 	 * @param promptMsg - Prompt message to user
 	 * @author drunia
 	 */
-	 File chooseFile(String promptMsg, int dialogMode);
+	 File chooseFile(String promptMsg, DialogType type);
 }

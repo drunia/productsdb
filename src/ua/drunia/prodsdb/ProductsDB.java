@@ -44,14 +44,12 @@ public class ProductsDB implements IUserUI {
 		//f.setVisible(true);
 		
 		
-		
+		String dbVer = null;
 		if (db.beginTransaction()) {
-			//for (int i = 0; i < 100; i++) 
-			//	db.executeUpdate("insert into dbconf (db_ver) values (" + i + ")");
-			String dbVer = String.valueOf(db.getVersion());
+			dbVer = String.valueOf(db.getVersion());
 			db.commit();
-			prodsdb.message("Current local version db: " + dbVer);
 		} 
+		prodsdb.message("Current local version db: " + dbVer);
 		
 	}
 	
@@ -74,7 +72,8 @@ public class ProductsDB implements IUserUI {
 		JOptionPane.showMessageDialog(null, "Message:\n" + msg, "Message", JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	public File chooseFile(String promptMsg, int dialogMode) {
+	public File chooseFile(String promptMsg, DialogType type) {
+		if (type == DialogType.SAVE) message("Saving");
 		return null;
 	}
 }

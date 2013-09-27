@@ -12,7 +12,7 @@ import org.sqlite.JDBC;
 import ua.drunia.prodsdb.gui.IUserUI;
 
 public class Database {
-	public static final int DB_VER = 1; 
+	public static final int DB_VER = 3; 
 	private IUserUI ui;
 	public boolean initialized;
 	private Connection c;

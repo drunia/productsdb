@@ -41,19 +41,11 @@ public class DatabaseUpdater {
 		 * updateSql - array of sql query to update db
 		 * updateSql[index] -  index - version of database
 		 */
-		String[] updateSql = new String[4];
+		String[] updateSql = new String[Database.DB_VER + 1];
 		updateSql[1] = "INSERT OR REPLACE INTO dbconf (db_ver) VALUES (" + Database.DB_VER + ");";
 		
-		updateSql[2] = "CREATE TABLE abc (id INTEGER NOT NULL);" +
-			"INSERT INTO abc values(123);" +
-			"UPDATE dbconf SET db_ver = " + db.DB_VER + ";";
-			
-		updateSql[3] = "CREATE TABLE abcd (id INTEGER NOT NULL);" +
-			"INSERT INTO abcd values(123);" +
-			"UPDATE dbconf SET db_ver = " + db.DB_VER + ";";
-		
 		boolean update = false;
-		for (int i = localVer; i < db.DB_VER; i++) {
+		for (int i = localVer; i < Database.DB_VER; i++) {
 			if (i == 0) {;
 				if (!(createNewDB() && db.executeUpdate(updateSql[++localVer]) > 0)) {
 					throw new SQLException("Error in create new database!");
@@ -75,35 +67,33 @@ public class DatabaseUpdater {
 	  * @author drunia
 	  */
 	 private boolean createNewDB() {
-		boolean res = false;
 		String sql = null;		
 		/*
 		 * dbconf table
 		 */ 
 		sql = "CREATE TABLE dbconf (db_ver INTEGER NOT NULL);";
-		db.executeUpdate(sql);
+		if (!(db.executeUpdate(sql) > 0)) return false; 
 		/*
 		 * products table
 		 */ 
 		sql = "CREATE TABLE products (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"product_name TEXT NOT NULL);";
-		db.executeUpdate(sql);
+		if (!(db.executeUpdate(sql) > 0)) return false;
 		/*
 		 * clients table
 		 */ 
 		sql = "CREATE TABLE clients (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"client_name TEXT NOT NULL);";
-		db.executeUpdate(sql);
+		if (!(db.executeUpdate(sql) > 0)) return false;
 	   /*
 		* shoppinng table
 		*/ 
 		sql = "CREATE TABLE shopping (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
-		db.executeUpdate(sql);	
-		res = true;
-		return res;
+		if (!(db.executeUpdate(sql) > 0)) return false;
+		return true;
 	}
 }
