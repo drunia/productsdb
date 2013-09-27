@@ -3,6 +3,10 @@ package ua.drunia.prodsdb;
 import ua.drunia.prodsdb.logic.Database;
 import ua.drunia.prodsdb.gui.IUserUI;
 import ua.drunia.prodsdb.logic.Settings;
+import ua.drunia.prodsdb.util.LogUtil;
+
+import java.util.logging.Logger;
+import java.util.logging.Level; 
 
 import java.io.File;
 
@@ -11,7 +15,12 @@ import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 
 public class ProductsDB implements IUserUI {
+	private static Logger log = Logger.getLogger(ProductsDB.class.getName());
+
 	public static void main(String[] args) {
+		log.addHandler(LogUtil.getFileHandler());
+		log.log(Level.INFO, "This logged message");
+		log.log(Level.WARNING, "This logged message", new Exception("Generated error"));
 		//Init
 		ProductsDB prodsdb = new ProductsDB();
 		
@@ -27,7 +36,6 @@ public class ProductsDB implements IUserUI {
 		else
 			System.out.println("Database initialized FAIL.");
 			
-		
 		
 		//test
 		javax.swing.JFrame f = new javax.swing.JFrame();
