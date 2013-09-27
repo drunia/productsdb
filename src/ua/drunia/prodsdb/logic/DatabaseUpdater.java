@@ -46,7 +46,7 @@ public class DatabaseUpdater {
 		
 		boolean update = false;
 		for (int i = localVer; i < Database.DB_VER; i++) {
-			if (i == 0) {;
+			if (i == 0) {
 				if (!(createNewDB() && db.executeUpdate(updateSql[++localVer]) > 0)) {
 					throw new SQLException("Error in create new database!");
 				}
