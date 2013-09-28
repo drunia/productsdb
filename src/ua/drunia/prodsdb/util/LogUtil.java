@@ -15,48 +15,48 @@ import java.util.logging.LogRecord;
 import java.io.IOException;
 
 public class LogUtil {
-		/**
-		 * Class for need formatting rules
-		 * @author drunia
-		 */
-		private static class LogFormatter extends Formatter {
-			public String format(LogRecord record) {
-				return formatMessage(record);
-			}
+	/**
+	 * Class for need formatting rules
+	 * @author drunia
+	 */
+	private static class LogFormatter extends Formatter {
+		public String format(LogRecord record) {
+			return formatMessage(record);
+		}
 			
-			/**
-			 * Method formatting log message
-			 * @author drunia
-			 */
-			public String formatMessage(LogRecord record) {
-				java.util.Date d = new java.util.Date(record.getMillis()); 
-				StringBuilder message = new StringBuilder(record.getLevel() + ": " + d + " ");
-				message.append(record.getSourceClassName() + ".");
-				message.append(record.getSourceMethodName() + "()\n");
-				message.append(record.getMessage() + "\n");
-				
-				Throwable t = record.getThrown();
-				if (t != null && record.getLevel() == Level.WARNING) {
-					message.append("Exception: " + t.getMessage() + "\n");
-					for (StackTraceElement ste : t.getStackTrace())
-						message.append(ste + "\n");
-				}
-				return message.append("\n").toString();
-			}
-		}
-		
 		/**
-		 * Return filehandler with need formatter
+		 * Method formatting log message
 		 * @author drunia
 		 */
-		public static Handler getFileHandler() {
-			FileHandler fh = null;
-			try {
-				fh = new FileHandler("productsdb.log", (1024 * 1024), 10, true);
-				fh.setFormatter(new LogFormatter());
-			} catch (IOException e) {
-				System.err.println("Error create FileHandler for Logger\n" + e);
+		public String formatMessage(LogRecord record) {
+			java.util.Date d = new java.util.Date(record.getMillis()); 
+			StringBuilder message = new StringBuilder(record.getLevel() + ": " + d + " ");
+			message.append(record.getSourceClassName() + ".");
+			message.append(record.getSourceMethodName() + "()\n");
+			message.append(record.getMessage() + "\n");
+			
+			Throwable t = record.getThrown();
+			if (t != null && record.getLevel() == Level.WARNING) {
+				message.append("Exception: " + t.getMessage() + "\n");
+				for (StackTraceElement ste : t.getStackTrace())
+					message.append(ste + "\n");
 			}
-			return fh;
+			return message.append("\n").toString();
 		}
+	}
+		
+	/**
+	 * Return filehandler with need formatter
+	 * @author drunia
+	 */
+	public static Handler getFileHandler() {
+		FileHandler fh = null;
+		try {
+			fh = new FileHandler("productsdb.log", (1024 * 1024), 10, true);
+			fh.setFormatter(new LogFormatter());
+		} catch (IOException e) {
+			System.err.println("Error create FileHandler for Logger\n" + e);
+		}
+		return fh;
+	}
 }
