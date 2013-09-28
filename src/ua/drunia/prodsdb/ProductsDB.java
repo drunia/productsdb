@@ -4,6 +4,7 @@ import ua.drunia.prodsdb.logic.Database;
 import ua.drunia.prodsdb.gui.IUserUI;
 import ua.drunia.prodsdb.logic.Settings;
 import ua.drunia.prodsdb.util.LogUtil;
+import ua.drunia.prodsdb.logic.CategoryController;
 
 import java.util.logging.Logger;
 import java.util.logging.Level; 
@@ -21,6 +22,7 @@ public class ProductsDB implements IUserUI {
 		log.addHandler(LogUtil.getFileHandler());
 		log.log(Level.INFO, "This logged message");
 		log.log(Level.WARNING, "This logged message", new Exception("Generated error"));
+		
 		//Init
 		ProductsDB prodsdb = new ProductsDB();
 		
@@ -57,14 +59,20 @@ public class ProductsDB implements IUserUI {
 			dbVer = String.valueOf(db.getVersion());
 			db.commit();
 		} 
-		prodsdb.message("Current local version db: " + dbVer);
+		//prodsdb.message("Current local version db: " + dbVer);
+		
+		//Testing controller
+		CategoryController cc = new CategoryController(db, prodsdb);
+		cc.addCategory(1, 0, "TestCategory1", "");
+		cc.removeCategory(1);
+
 		
 	}
 	
 	
 	
 	
-	public void updateUI(ResultSet rs){
+	public void updateUI(ResultSet rs, int callerId){
 		System.out.println("updateUI");
 	}
 	

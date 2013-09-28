@@ -9,11 +9,14 @@
 package ua.drunia.prodsdb.logic;
 
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import ua.drunia.prodsdb.logic.Database;
+import ua.drunia.prodsdb.util.LogUtil;
  
  
 public class DatabaseUpdater {
+	private static Logger log = Logger.getLogger(DatabaseUpdater.class.getName());
 	private Database db;
 	/**
 	 * Constructor 
@@ -22,6 +25,7 @@ public class DatabaseUpdater {
 	 */
 	public DatabaseUpdater(Database db) {
 		this.db = db;
+		log.addHandler(LogUtil.getFileHandler());
 	}
 	
 	/**
@@ -47,13 +51,17 @@ public class DatabaseUpdater {
 		boolean update = false;
 		for (int i = localVer; i < Database.DB_VER; i++) {
 			if (i == 0) {
-				if (!(createNewDB() && db.executeUpdate(updateSql[++localVer]) > 0)) {
+				boolean a = createNewDB();
+				boolean b = db.executeUpdate(updateSql[++localVer]) > 0;
+				if (!(a && b)) {
+					db.rollback();
 					throw new SQLException("Error in create new database!");
 				}
 				continue;
 			} 
 			update = db.executeUpdate(updateSql[++localVer]) > 0;
 			if (!update) {
+				db.rollback();
 				throw new SQLException("Error in update database to ver: " + localVer);
 			}
 		}
@@ -68,32 +76,46 @@ public class DatabaseUpdater {
 	  */
 	 private boolean createNewDB() {
 		String sql = null;		
+		
 		/*
 		 * dbconf table
 		 */ 
 		sql = "CREATE TABLE dbconf (db_ver INTEGER NOT NULL);";
-		if (!(db.executeUpdate(sql) > 0)) return false; 
+		if ((db.executeUpdate(sql) == -1)) return false; 
+		
 		/*
 		 * products table
 		 */ 
 		sql = "CREATE TABLE products (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"product_name TEXT NOT NULL);";
-		if (!(db.executeUpdate(sql) > 0)) return false;
+		if ((db.executeUpdate(sql) == -1)) return false; 
+		
 		/*
 		 * clients table
 		 */ 
 		sql = "CREATE TABLE clients (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"client_name TEXT NOT NULL);";
-		if (!(db.executeUpdate(sql) > 0)) return false;
+		if ((db.executeUpdate(sql) == -1)) return false; 
+		
+		/*
+		 * categories table
+		 */ 
+		sql = "CREATE TABLE categories (" + 
+			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"cat_id INTEGER NOT NULL, cat_parent_id INTEGER NOT NULL," + 
+			"name TEXT NOT NULL, description TEXT);";
+		if ((db.executeUpdate(sql) == -1)) return false; 
+		
 	   /*
 		* shoppinng table
 		*/ 
 		sql = "CREATE TABLE shopping (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
-		if (!(db.executeUpdate(sql) > 0)) return false;
+		if ((db.executeUpdate(sql) == -1)) return false; 
+		
 		return true;
 	}
 }

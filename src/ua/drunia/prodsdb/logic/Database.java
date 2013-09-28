@@ -7,12 +7,15 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import java.util.logging.Logger;
+
 import org.sqlite.JDBC;
 
 import ua.drunia.prodsdb.gui.IUserUI;
 
 public class Database {
-	public static final int DB_VER = 3; 
+	private static Logger log = Logger.getLogger(Database.class.getName());
+	public static final int DB_VER = 1; 
 	private IUserUI ui;
 	public boolean initialized;
 	private Connection c;
@@ -32,18 +35,16 @@ public class Database {
 				if (dbup.update()) ui.message("Update OK to version: " + Database.DB_VER);
 			} catch (SQLException e) {
 				ui.error(e);
+				log.warning(e.toString());
 			}
 		}
 	}
 	
 	/**
-	 * Initialize database (create tables, if not exists)
+	 * Initialize database (try load driver)
 	 * @author drunia
 	 */
 	private boolean initDatabase() {
-		/*
-		 * Try init db, load driver
-		 */
 		try {
 			Class.forName("org.sqlite.JDBC");
 			return true;
@@ -125,6 +126,8 @@ public class Database {
 	
 	/**
 	 * Proxy method update/insert action to db
+	 * @param sql - sql query
+	 * @return 0 if all OK -1 if error occured
 	 * @author drunia
 	 */
 	public int executeUpdate(String sql) {
@@ -134,6 +137,7 @@ public class Database {
 			res = st.executeUpdate(sql);
 		} catch (SQLException e) {
 			ui.error(e);
+			res = -1;
 		}
 		return res; 
 	}
@@ -142,6 +146,7 @@ public class Database {
 	 * Proxy method update/insert action to db
 	 * @param preparedSql - prepared sql query like "select * from a where a.b = ? and a.c = ?"
 	 * @param parameters - array of value of "?" in queue
+	 * @return 0 if all OK -1 if error occured
 	 * @author drunia
 	 */
 	public int executeUpdate(String preparedSql, Object[] parameters) {
@@ -153,6 +158,7 @@ public class Database {
 			res = pst.executeUpdate();
 		} catch (SQLException e) {
 			ui.error(e);
+			res = -1;
 		} 
 		return res; 
 	}

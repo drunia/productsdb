@@ -46,13 +46,14 @@ public class LogUtil {
 	}
 		
 	/**
-	 * Return filehandler with need formatter
+	 * Return filehandler to log in file
 	 * @author drunia
 	 */
 	public static Handler getFileHandler() {
 		FileHandler fh = null;
 		try {
-			fh = new FileHandler("productsdb.log", (1024 * 1024), 10, true);
+			//attach file with max size 1mb
+			fh = new FileHandler("productsdb.log", (1024 * 1024 * 1024), 1, true);
 			fh.setFormatter(new LogFormatter());
 		} catch (IOException e) {
 			System.err.println("Error create FileHandler for Logger\n" + e);

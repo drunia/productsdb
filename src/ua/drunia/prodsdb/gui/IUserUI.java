@@ -11,7 +11,7 @@ public interface IUserUI {
 	 * @param rs - prepared ResultSet from db
 	 * @author drunia
 	 */
-    void updateUI(ResultSet rs);
+    void updateUI(ResultSet rs, int callerId);
 	/**
 	 * Show error dialog, if error occured
 	 * @param e - raised Exception
