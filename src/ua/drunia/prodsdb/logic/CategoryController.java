@@ -27,6 +27,11 @@ public class CategoryController extends Controller {
  
 	/**
 	 * Method add new category to db
+	 * @param id - category id
+	 * @param parentId - Parent category id 
+	 * @param name - name of category
+	 * @param desc - description of category
+	 * @return boolean - true if all is OK
 	 * @author drunia
 	 */
 	public boolean addCategory(int id, int parentId, String name, String desc) {
@@ -45,6 +50,7 @@ public class CategoryController extends Controller {
 	/**
 	 * Method remove category to db
 	 * @param id - category id in database
+	 * @param desc - description of category
 	 * @author drunia
 	 */
 	public boolean removeCategory(int id) {
@@ -61,6 +67,7 @@ public class CategoryController extends Controller {
 	
 	/**
 	 * Return categories from database
+	 * @return ResultSet - all categories from db
 	 * @author drunia
 	 */
 	public ResultSet getCategories() {
@@ -70,7 +77,9 @@ public class CategoryController extends Controller {
 			log.warning(err);
 		}
 		String sql = "SELECT cat_id, cat_parent_id, name, description FROM categories;";
-		return db.executeQuery(sql);
+		ResultSet res = db.executeQuery(sql);
+		db.commit();
+		return res;
 	}
 	
 }
