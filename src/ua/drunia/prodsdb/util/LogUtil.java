@@ -15,6 +15,7 @@ import java.util.logging.LogRecord;
 import java.io.IOException;
 
 public class LogUtil {
+	private static FileHandler fh;
 	/**
 	 * Class for need formatting rules
 	 * @author drunia
@@ -50,11 +51,12 @@ public class LogUtil {
 	 * @author drunia
 	 */
 	public static Handler getFileHandler() {
-		FileHandler fh = null;
 		try {
-			//attach file with max size 1mb
-			fh = new FileHandler("productsdb.log", (1024 * 1024 * 1024), 1, true);
-			fh.setFormatter(new LogFormatter());
+			if (fh == null) {
+				//attach file with max size 1mb
+				fh = new FileHandler("productsdb.log", (1024 * 1024), 1, true);
+				fh.setFormatter(new LogFormatter());
+			}
 		} catch (IOException e) {
 			System.err.println("Error create FileHandler for Logger\n" + e);
 		}
