@@ -22,7 +22,7 @@ public class ProductsDB implements IUserUI, CategoryController.ISqlResultListene
 	public static void main(String[] args) {
 		log.addHandler(LogUtil.getFileHandler());
 
-		//Init
+		//Initiale
 		final ProductsDB prodsdb = new ProductsDB();
 		
 		Settings s = Settings.get(prodsdb);
