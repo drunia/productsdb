@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.util.logging.Logger;
 
 import org.sqlite.JDBC;
+import org.sqlite.SQLiteDataSource;
 
 import ua.drunia.prodsdb.gui.IUserUI;
 

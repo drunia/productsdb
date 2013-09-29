@@ -20,9 +20,7 @@ public class ProductsDB implements IUserUI {
 
 	public static void main(String[] args) {
 		log.addHandler(LogUtil.getFileHandler());
-		log.log(Level.INFO, "This logged message");
-		log.log(Level.WARNING, "This logged message", new Exception("Generated error"));
-		
+
 		//Init
 		ProductsDB prodsdb = new ProductsDB();
 		
@@ -63,17 +61,40 @@ public class ProductsDB implements IUserUI {
 		
 		//Testing controller
 		CategoryController cc = new CategoryController(db, prodsdb);
-		cc.addCategory(1, 0, "TestCategory1", "");
-		cc.removeCategory(1);
-
+		//cc.addCategory(2, 0, "TestCategory1", "This description");
+		cc.removeCategory(2);
 		
+		cc.sql("SELECT * FROM categories;", 1);
+		cc.getCategories(2);
+
+
 	}
 	
 	
 	
 	
-	public void updateUI(ResultSet rs, int callerId){
+	public void updateUI(ResultSet rs, int callerId) {
 		System.out.println("updateUI");
+		switch (callerId) {
+			//custom sql
+			case 1: 
+				try {
+					message("SQL: " + rs.getInt(1));
+				} catch (java.sql.SQLException e) {
+					log.info(e.toString());
+				}
+			break;
+			
+			//get categories
+			case 2: 
+				try {
+					message("SQL: category name = " + rs.getString(3));
+				} catch (java.sql.SQLException e) {
+					log.info(e.toString());
+				}
+			break;
+		}
+		
 	}
 	
 	public void error(Exception e) {

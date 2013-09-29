@@ -10,7 +10,9 @@ import ua.drunia.prodsdb.gui.IUserUI;
 import ua.drunia.prodsdb.util.LogUtil;
 
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
  
 public class CategoryController extends Controller {
@@ -59,7 +61,20 @@ public class CategoryController extends Controller {
 			ui.error(new Exception(err));
 			log.warning(err);
 		}
-		String sql = "DELETE FROM categories WHERE cat_id = '" + id + "';";
+		
+		//check products on link to this category
+		String sql = "SELECT COUNT(*) FROM products WHERE product_cat_id = '" + id + "';";
+		try {	
+			if (db.executeQuery(sql).getInt(1) > 0) {
+				db.rollback();
+				ui.message("You can not delete this category, she linked with products");
+				return false;
+			}
+		} catch (SQLException e) {
+			log.log(Level.WARNING, "Error in check products on link to this category", e);
+		}
+		
+		sql = "DELETE FROM categories WHERE cat_id = '" + id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
 		return res;
@@ -67,10 +82,10 @@ public class CategoryController extends Controller {
 	
 	/**
 	 * Return categories from database
-	 * @return ResultSet - all categories from db
+	 * @param callerId - Identificated operation on IUserUI.updateUI()
 	 * @author drunia
 	 */
-	public ResultSet getCategories() {
+	public void getCategories(int callerId) {
 		if (!db.beginTransaction()) {
 			String err = "Can'not begin transaction";
 			ui.error(new Exception(err));
@@ -78,8 +93,8 @@ public class CategoryController extends Controller {
 		}
 		String sql = "SELECT cat_id, cat_parent_id, name, description FROM categories;";
 		ResultSet res = db.executeQuery(sql);
+		ui.updateUI(res, callerId);
 		db.commit();
-		return res;
 	}
 	
 }

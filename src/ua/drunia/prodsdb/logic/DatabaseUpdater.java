@@ -88,7 +88,7 @@ public class DatabaseUpdater {
 		 */ 
 		sql = "CREATE TABLE products (" + 
 			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"product_name TEXT NOT NULL);";
+			"product_name TEXT NOT NULL, product_cat_id INTEGER NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		/*

@@ -36,25 +36,23 @@ public abstract class Controller {
 	 * </code>
 	 * @author drunia
 	 */
-	public ResultSet sql(String sql) {
+	public boolean sql(String sql, int callerId) {
 		if (!db.beginTransaction()) 
-			return null;
+			return false;
 		else {
-			ResultSet rs = null;
 			boolean isUpdateSql = 
 				sql.toUpperCase().startsWith("UPDATE") ||
 				sql.toUpperCase().startsWith("INSERT") ||
 				sql.toUpperCase().startsWith("DELETE");
-			if (isUpdateSql) {
-				int res = db.executeUpdate(sql);
-				if (res <= 0) 
-					rs = db.executeQuery("SELECT -1;");
-				else
-					rs = db.executeQuery("SELECT " + res + ";");
-			} else 
+			if (isUpdateSql) 	
+				return (db.executeUpdate(sql) != -1);
+			else {
+				ResultSet rs = null;
 				rs = db.executeQuery(sql);
-			db.commit();
-			return rs;
+				ui.updateUI(rs, callerId);
+				db.commit();
+				return true;
+			}
 		}
 	}
 	
