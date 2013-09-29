@@ -30,10 +30,4 @@ public interface IUserUI {
 	 * @author drunia
 	 */	
 	boolean confirm(String msg);
-	/**
-	 * Choose file dialog
-	 * @param promptMsg - Prompt message to user
-	 * @author drunia
-	 */
-	 File chooseFile(String promptMsg, DialogType type);
 }

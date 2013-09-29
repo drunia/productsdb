@@ -43,6 +43,10 @@ public class CategoryController extends Controller {
 			" VALUES ('" + parentId + "', '" + name + "', '" + desc + "');";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
+		
+		//Request updateUI event
+		ui.updateUI(this);
+		
 		return res;
 	}
 	
@@ -69,17 +73,21 @@ public class CategoryController extends Controller {
 		sql = "DELETE FROM categories WHERE cat_id = '" + id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
+		
+		//Request updateUI event
+		ui.updateUI(this);
+		
 		return res;
 	}
 	
 	/**
 	 * Return categories from database
-	 * @param callerId - Identificated who request this operation
+	 * @param callerId - Identify who request this operation
 	 * @author drunia
 	 */
 	public void getCategories(int callerId) {
 		if (!db.beginTransaction()) return;
-		
+
 		String sql = "SELECT cat_id, cat_parent_id, name, description FROM categories;";
 		ResultSet res = db.executeQuery(sql);
 		if (!(sqlListener == null))
@@ -102,6 +110,10 @@ public class CategoryController extends Controller {
 			"WHERE cat_id = '" + idEditCategory + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
+		
+		//Request updateUI event
+		ui.updateUI(this);
+		
 		return res;
 	}
 	
