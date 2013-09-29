@@ -23,7 +23,7 @@ public class ProductsDB implements IUserUI, CategoryController.ISqlResultListene
 		log.addHandler(LogUtil.getFileHandler());
 
 		//Init
-		ProductsDB prodsdb = new ProductsDB();
+		final ProductsDB prodsdb = new ProductsDB();
 		
 		Settings s = Settings.get(prodsdb);
 		System.out.println("Database filename = " + s.getParam("db.file"));
@@ -62,12 +62,24 @@ public class ProductsDB implements IUserUI, CategoryController.ISqlResultListene
 		
 		//Testing controller
 		CategoryController cc = new CategoryController(db, prodsdb);
-		cc.setSqlResultListener(prodsdb);
-		//cc.addCategory(2, 0, "TestCategory1", "This description");
-		cc.removeCategory(2);
-		
-		cc.sql("SELECT * FROM categories;", 1);
+		cc.editCategory(2, 0, "Электронника", "Все электронное барахло");
+		cc.setSqlResultListener(new CategoryController.ISqlResultListener() {
+			public boolean sqlQueryReady(ResultSet rs, int callerId) {
+				try {
+					prodsdb.message("SQL: category name = " + rs.getString(3));
+				} catch (java.sql.SQLException e) {
+					log.info("callerId = " + callerId + e.toString());
+				}
+				return true;
+			}
+		});
 		cc.getCategories(2);
+		
+		//cc.addCategory(0, "TestCategory1", "This description");
+		//cc.removeCategory(1);
+		
+		//cc.sql("SELECT * FROM categories;", 1);
+		//cc.getCategories(2);
 
 	}
 	
@@ -86,7 +98,7 @@ public class ProductsDB implements IUserUI, CategoryController.ISqlResultListene
 				try {
 					message("SQL: " + rs.getInt(1));
 				} catch (java.sql.SQLException e) {
-					log.info(e.toString());
+					log.info("callerId = " + callerId + e.toString());
 				}
 			break;
 			
@@ -95,7 +107,7 @@ public class ProductsDB implements IUserUI, CategoryController.ISqlResultListene
 				try {
 					message("SQL: category name = " + rs.getString(3));
 				} catch (java.sql.SQLException e) {
-					log.info(e.toString());
+					log.info("callerId = " + callerId + e.toString());
 				}
 			break;
 		}

@@ -91,7 +91,7 @@ public abstract class Controller {
 	}
 	
 	/**
-	 * Set the ISQLQueryListener object to listen sql result events
+	 * Set the ISqlResultListener object to listen sql result events
 	 * @param sqlListener - object implemented Controller.ISqlResultListener interface
 	 */
 	public void setSqlResultListener(ISqlResultListener sqlListener) {

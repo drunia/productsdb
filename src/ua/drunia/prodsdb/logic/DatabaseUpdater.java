@@ -87,24 +87,24 @@ public class DatabaseUpdater {
 		 * products table
 		 */ 
 		sql = "CREATE TABLE products (" + 
-			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"product_name TEXT NOT NULL, product_cat_id INTEGER NOT NULL);";
+			"product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"name TEXT NOT NULL, product_cat_id INTEGER NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		/*
 		 * clients table
 		 */ 
 		sql = "CREATE TABLE clients (" + 
-			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"client_name TEXT NOT NULL);";
+			"client_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"name TEXT NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		/*
 		 * categories table
 		 */ 
 		sql = "CREATE TABLE categories (" + 
-			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"cat_id INTEGER NOT NULL, cat_parent_id INTEGER NOT NULL," + 
+			"cat_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"cat_parent_id INTEGER NOT NULL," + 
 			"name TEXT NOT NULL, description TEXT);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
@@ -112,8 +112,8 @@ public class DatabaseUpdater {
 		* shoppinng table
 		*/ 
 		sql = "CREATE TABLE shopping (" + 
-			"id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"clients_id INTEGER NOT NULL, products_id INTEGER NOT NULL);";
+			"shop_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"client_id INTEGER NOT NULL, product_id INTEGER NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		return true;

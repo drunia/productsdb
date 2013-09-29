@@ -66,7 +66,7 @@ public class Database {
 		try {
 			if ((c != null) && (!c.isClosed())) {
 				ui.error(new SQLException("Old connection to db not closed!\n" +
-					"Try db.commit() or db.rollback(), do it!"));
+					"Need db.commit() or db.rollback(), do it!"));
 				return false;	
 			} else {
 				c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);	

@@ -36,31 +36,23 @@ public class CategoryController extends Controller {
 	 * @return boolean - true if all is OK
 	 * @author drunia
 	 */
-	public boolean addCategory(int id, int parentId, String name, String desc) {
-		if (!db.beginTransaction()) {
-			String err = "Can'not begin transaction";
-			ui.error(new Exception(err));
-			log.warning(err);
-		}
-		String sql = "INSERT INTO categories (cat_id, cat_parent_id, name, description) " +
-			" VALUES ('" + id + "', '" + parentId + "', '" + name + "', '" + desc + "');";
+	public boolean addCategory(int parentId, String name, String desc) {
+		if (!db.beginTransaction()) return false;
+
+		String sql = "INSERT INTO categories (cat_parent_id, name, description) " +
+			" VALUES ('" + parentId + "', '" + name + "', '" + desc + "');";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
 		return res;
 	}
 	
 	/**
-	 * Method remove category to db
+	 * Method remove category from db
 	 * @param id - category id in database
-	 * @param desc - description of category
 	 * @author drunia
 	 */
 	public boolean removeCategory(int id) {
-		if (!db.beginTransaction()) {
-			String err = "Can'not begin transaction";
-			ui.error(new Exception(err));
-			log.warning(err);
-		}
+		if (!db.beginTransaction()) return false;
 		
 		//check products on link to this category
 		String sql = "SELECT COUNT(*) FROM products WHERE product_cat_id = '" + id + "';";
@@ -82,20 +74,35 @@ public class CategoryController extends Controller {
 	
 	/**
 	 * Return categories from database
-	 * @param callerId - Identificated operation on IUserUI.updateUI()
+	 * @param callerId - Identificated who request this operation
 	 * @author drunia
 	 */
 	public void getCategories(int callerId) {
-		if (!db.beginTransaction()) {
-			String err = "Can'not begin transaction";
-			ui.error(new Exception(err));
-			log.warning(err);
-		}
+		if (!db.beginTransaction()) return;
+		
 		String sql = "SELECT cat_id, cat_parent_id, name, description FROM categories;";
 		ResultSet res = db.executeQuery(sql);
 		if (!(sqlListener == null))
 			sqlListener.sqlQueryReady(res, callerId);
 		db.commit();
+	}
+	
+	/**
+	 * Method add new category to db
+	 * @param idEditCategory - edit category
+	 * @param newParentId - new parent category id 
+	 * @param newName - new name of category
+	 * @param newDesc - new description of category
+	 */
+	public boolean editCategory(int idEditCategory, int newParentId, String newName, String newDesc) {
+		if (!db.beginTransaction()) return false;
+		
+		String sql = "UPDATE categories SET cat_parent_id = '" + newParentId + "', " +
+			"name = '" + newName + "', description = '" + newDesc + "' " +
+			"WHERE cat_id = '" + idEditCategory + "';";
+		boolean res = (db.executeUpdate(sql) > 0);
+		db.commit();
+		return res;
 	}
 	
 }
