@@ -5,6 +5,7 @@ import ua.drunia.prodsdb.gui.IUserUI;
 import ua.drunia.prodsdb.logic.Settings;
 import ua.drunia.prodsdb.util.LogUtil;
 import ua.drunia.prodsdb.logic.CategoryController;
+import ua.drunia.prodsdb.logic.Controller;
 
 import java.util.logging.Logger;
 import java.util.logging.Level; 
@@ -15,7 +16,7 @@ import java.sql.ResultSet;
 
 import javax.swing.JOptionPane;
 
-public class ProductsDB implements IUserUI {
+public class ProductsDB implements IUserUI, CategoryController.ISqlResultListener {
 	private static Logger log = Logger.getLogger(ProductsDB.class.getName());
 
 	public static void main(String[] args) {
@@ -61,19 +62,23 @@ public class ProductsDB implements IUserUI {
 		
 		//Testing controller
 		CategoryController cc = new CategoryController(db, prodsdb);
+		cc.setSqlResultListener(prodsdb);
 		//cc.addCategory(2, 0, "TestCategory1", "This description");
 		cc.removeCategory(2);
 		
 		cc.sql("SELECT * FROM categories;", 1);
 		cc.getCategories(2);
 
-
 	}
 	
 	
 	
 	
-	public void updateUI(ResultSet rs, int callerId) {
+	public void updateUI(Object source) {
+	
+	}
+	
+	public boolean sqlQueryReady(ResultSet rs, int callerId) {
 		System.out.println("updateUI");
 		switch (callerId) {
 			//custom sql
@@ -95,6 +100,7 @@ public class ProductsDB implements IUserUI {
 			break;
 		}
 		
+		return false;
 	}
 	
 	public void error(Exception e) {

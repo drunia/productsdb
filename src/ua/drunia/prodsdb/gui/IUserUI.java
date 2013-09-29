@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 
 public interface IUserUI {
     enum DialogType {OPEN, SAVE};
+	
 	/**
-	 * Update UI, when data in database ready/change
-	 * @param rs - prepared ResultSet from db
+	 * Update, when model want update data in UI
 	 * @author drunia
 	 */
-    void updateUI(ResultSet rs, int callerId);
+    void updateUI(Object source);
 	/**
 	 * Show error dialog, if error occured
 	 * @param e - raised Exception

@@ -13,6 +13,21 @@ import java.sql.ResultSet;
 public abstract class Controller {
 	protected Database db;
 	protected IUserUI ui;
+	protected ISqlResultListener sqlListener;
+
+	/**
+	 * Subinterface for listen sql query results 
+	 * @author drunia
+	 */
+	public interface ISqlResultListener {
+		/**
+		* Called, when data in database ready/change
+		* @param rs - prepared ResultSet from db
+		* @param callerId - Identificate caller
+		* @author drunia
+		*/
+		boolean sqlQueryReady(ResultSet rs, int callerId);
+	}
 	
 	/**
 	 * Default constructor
@@ -28,7 +43,7 @@ public abstract class Controller {
 	/**
 	 * Universal sql query to database
 	 * @param sql - sql query 
-	 * @return rs - ResultSet
+	 * @param callerId - id who initialize sql query
 	 * <code>
 	 * If query is update db (INSERT,UPDATE,DELETE)
 	 * returned int value (ResultSet.getInt(1)) may be:
@@ -49,7 +64,8 @@ public abstract class Controller {
 			else {
 				ResultSet rs = null;
 				rs = db.executeQuery(sql);
-				ui.updateUI(rs, callerId);
+				if (!(sqlListener == null))
+					sqlListener.sqlQueryReady(rs, callerId);
 				db.commit();
 				return true;
 			}
@@ -61,7 +77,7 @@ public abstract class Controller {
 	 * @param db - initialized database
 	 * @author drunia
 	 */
-	protected void setDatabase(Database db) {
+	public void setDatabase(Database db) {
 		this.db = db;
 	}
 	
@@ -70,7 +86,15 @@ public abstract class Controller {
 	 * @param ui - controled view
 	 * @author drunia
 	 */
-	protected void setView(IUserUI ui) {
+	public void setView(IUserUI ui) {
 		this.ui = ui;
+	}
+	
+	/**
+	 * Set the ISQLQueryListener object to listen sql result events
+	 * @param sqlListener - object implemented Controller.ISqlResultListener interface
+	 */
+	public void setSqlResultListener(ISqlResultListener sqlListener) {
+		this.sqlListener = sqlListener;
 	}
 }

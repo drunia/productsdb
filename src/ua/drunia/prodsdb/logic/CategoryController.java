@@ -93,7 +93,8 @@ public class CategoryController extends Controller {
 		}
 		String sql = "SELECT cat_id, cat_parent_id, name, description FROM categories;";
 		ResultSet res = db.executeQuery(sql);
-		ui.updateUI(res, callerId);
+		if (!(sqlListener == null))
+			sqlListener.sqlQueryReady(res, callerId);
 		db.commit();
 	}
 	
