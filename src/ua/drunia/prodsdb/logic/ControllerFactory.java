@@ -1,7 +1,11 @@
 package ua.drunia.prodsdb.logic;
 
+import ua.drunia.prodsdb.logic.*;
+
 public class ControllerFactory {
-	public static void createProductsController(IUserUI ui) {
-		//void
+	public static CategoryController getCategoryController() {
+	//void
 	}
+	
+	
 }

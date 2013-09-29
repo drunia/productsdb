@@ -88,7 +88,7 @@ public class CategoryController extends Controller {
 	}
 	
 	/**
-	 * Method add new category to db
+	 * Method edit category in db
 	 * @param idEditCategory - edit category
 	 * @param newParentId - new parent category id 
 	 * @param newName - new name of category
