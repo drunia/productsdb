@@ -1,4 +1,7 @@
 bin
+doc
 *.class
+*.log
 productsdb.jar
 productsdb.conf
+
