@@ -50,6 +50,8 @@ public class CategoryController extends Controller {
 	
 	/**
 	 * Method remove category from db
+	 * Before delete category method check link data from table
+	 * products to table categories. If not linked - delete category
 	 * @param id - category id in database
 	 * @author drunia
 	 */
