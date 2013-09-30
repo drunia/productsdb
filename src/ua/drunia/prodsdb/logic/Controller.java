@@ -59,11 +59,13 @@ public abstract class Controller {
 				sql.toUpperCase().startsWith("UPDATE") ||
 				sql.toUpperCase().startsWith("INSERT") ||
 				sql.toUpperCase().startsWith("DELETE");
-			if (isUpdateSql) 	
-				return (db.executeUpdate(sql) != -1);
-			else {
-				ResultSet rs = null;
-				rs = db.executeQuery(sql);
+			if (isUpdateSql) {	
+				int updrows = (db.executeUpdate(sql) != -1);
+				db.commit();
+				if (updrows > 0 ) ui.updateUI(this);
+				return (updrows != -1);
+			} else {
+				ResultSet rs = db.executeQuery(sql);
 				if (!(sqlListener == null))
 					sqlListener.sqlQueryReady(rs, callerId);
 				db.commit();
