@@ -60,7 +60,7 @@ public abstract class Controller {
 				sql.toUpperCase().startsWith("INSERT") ||
 				sql.toUpperCase().startsWith("DELETE");
 			if (isUpdateSql) {	
-				int updrows = (db.executeUpdate(sql) != -1);
+				int updrows = db.executeUpdate(sql);
 				db.commit();
 				if (updrows > 0 ) ui.updateUI(this);
 				return (updrows != -1);
