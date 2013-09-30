@@ -54,7 +54,7 @@ public class LogUtil {
 		try {
 			if (fh == null) {
 				//attach file with max size 1mb
-				fh = new FileHandler("productsdb.log", (1024 * 1024), 1, true);
+				fh = new FileHandler("productsdb%g.log", (1024 * 1024), 10, true);
 				fh.setFormatter(new LogFormatter());
 			}
 		} catch (IOException e) {

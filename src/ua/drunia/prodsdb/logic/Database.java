@@ -12,12 +12,9 @@ import java.util.logging.Logger;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteDataSource;
 
-import ua.drunia.prodsdb.gui.IUserUI;
-
 public class Database {
 	private static Logger log = Logger.getLogger(Database.class.getName());
 	public static final int DB_VER = 1; 
-	private IUserUI ui;
 	public boolean initialized;
 	private Connection c;
 	private Statement st;
@@ -27,15 +24,13 @@ public class Database {
 	 * Initialize sqllite database
 	 * @param dbFileName - Path to database file
 	 */
-	public Database(IUserUI ui, String dbFileName) {
-		this.ui = ui;
+	public Database(String dbFileName) {
 		this.dbFileName = dbFileName;
 		if (initialized = initDatabase()) {
 			DatabaseUpdater dbup = new DatabaseUpdater(this);
 			try {
-				if (dbup.update()) ui.message("Update OK to version: " + Database.DB_VER);
+				if (dbup.update()) log.info("Database update OK to version: " + Database.DB_VER);
 			} catch (SQLException e) {
-				ui.error(e);
 				log.warning(e.toString());
 			}
 		}
@@ -50,7 +45,7 @@ public class Database {
 			Class.forName("org.sqlite.JDBC");
 			return true;
 		} catch (ClassNotFoundException e) {
-			ui.error(e);
+			log.warning(e.toString());
 			return false;
 		}
 		
@@ -65,15 +60,15 @@ public class Database {
 	public boolean beginTransaction() {
 		try {
 			if ((c != null) && (!c.isClosed())) {
-				ui.error(new SQLException("Old connection to db not closed!\n" +
-					"Need db.commit() or db.rollback(), do it!"));
+				log.warning(new SQLException("Old connection to db not closed!\n" +
+					"Need db.commit() or db.rollback(), do it!").toString());
 				return false;	
 			} else {
 				c = DriverManager.getConnection("jdbc:sqlite:" + dbFileName);	
 				c.setAutoCommit(false);
 			}
 		} catch (SQLException e) {
-			ui.error(e);
+			log.warning(e.toString());
 			return false;
 		}
 		return true;
@@ -89,7 +84,7 @@ public class Database {
 				c.commit();
 				c.close();
 			} catch (SQLException e) {
-				ui.error(e);
+				log.warning(e.toString());
 			}
 	 }
 	 
@@ -103,7 +98,7 @@ public class Database {
 				//c.rollback();
 				c.close();
 			} catch (SQLException e) {
-				ui.error(e);
+				log.warning(e.toString());
 			}
 	 }
 	
@@ -120,7 +115,7 @@ public class Database {
 				executeQuery("SELECT COUNT(name) FROM sqlite_master WHERE name = 'dbconf';").getInt(1); 
 			if (rowsCount > 0) res = executeQuery(sql).getInt(1);
 		} catch (SQLException e) {
-			ui.error(e);
+			log.warning(e.toString());
 		}
 		return res;
 	}
@@ -137,7 +132,7 @@ public class Database {
 			Statement st = c.createStatement();
 			res = st.executeUpdate(sql);
 		} catch (SQLException e) {
-			ui.error(e);
+			log.warning(e.toString());
 			res = -1;
 		}
 		return res; 
@@ -158,7 +153,7 @@ public class Database {
 				pst.setObject(i + 1, parameters[i]);
 			res = pst.executeUpdate();
 		} catch (SQLException e) {
-			ui.error(e);
+			log.warning(e.toString());
 			res = -1;
 		} 
 		return res; 
@@ -174,7 +169,7 @@ public class Database {
 			st = c.createStatement();
 			rs = st.executeQuery(sql);
 		} catch (SQLException e) {
-			ui.error(e);
+			log.warning(e.toString());
 		} 
 		return rs;
 	}
@@ -193,7 +188,7 @@ public class Database {
 				pst.setObject(i + 1, parameters[i]);
 			rs = pst.executeQuery();
 		} catch (SQLException e) {
-			ui.error(e);
+			log.warning(e.toString());
 		} 
 		return rs;
 	}
