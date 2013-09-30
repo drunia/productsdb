@@ -17,6 +17,9 @@ public class CategoryView extends JPanel implements
 	//Создаем класс для логгирования событий
 	private Logger log = Logger.getAnonymousLogger();
 	
+	//Ссфлка на главный JFrame приложения
+	private ProductsDB prodsdb;
+	
 	//Контроллер для взаимодействия с базой данных
 	private CategoryController cc;
 	
@@ -28,14 +31,16 @@ public class CategoryView extends JPanel implements
 	JButton addCatBtn, delCatBtn;
 	
 	//Конструктор панели по умолчанию
-	public CategoryView() {
+	public CategoryView(ProductsDB prodsdb) {
+		this.prodsdb = prodsdb;
+		
 		//Назначаем логгирование в файл
 		log.addHandler(LogUtil.getFileHandler());
 		//Устанавливаем лайоут - менеджер
 		setLayout(new BorderLayout());
 		
 		//Создаем наш контроллер
-		cc = new CategoryController(ProductsDB.db, this);
+		cc = new CategoryController(prodsdb.getDatabase(), this);
 		cc.setSqlResultListener(this);
 		
 		//Создаем кнопки и ложим на панель
@@ -122,7 +127,7 @@ public class CategoryView extends JPanel implements
 	
 	//Вызывается, когда модель хочет показать ошибку
 	public void error(Exception e) {
-		JOptionPane.showMessageDialog(null,	"Ошибка выполнения:\n" + e, "Ошибка", JOptionPane.ERROR_MESSAGE);
+		prodsdb.error(e);
 	}
 	
 	//Вызывается, когда модель что - то хочет подтвердить
@@ -132,8 +137,7 @@ public class CategoryView extends JPanel implements
 	
 	//Вызывается, когда модель хочет показать сообщение
 	public void message(String msg){
-		JOptionPane.showMessageDialog(null,
-			"Сообщение от модели/контроллера:\n" + msg, "Простое сообщение", JOptionPane.INFORMATION_MESSAGE);
+		prodsdb.message(msg);
 	}
 	
 }
