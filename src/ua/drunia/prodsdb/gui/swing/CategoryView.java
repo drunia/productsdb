@@ -1,8 +1,8 @@
-package ua.drunia.prodsdb.gui;
+package ua.drunia.prodsdb.gui.swing;
 
-import ua.drunia.prodsdb.ProductsDB;
 import ua.drunia.prodsdb.logic.*;
 import ua.drunia.prodsdb.util.*;
+import ua.drunia.prodsdb.gui.IUserUI;
 
 import java.util.logging.Logger;
 import java.sql.ResultSet;
@@ -18,7 +18,7 @@ public class CategoryView extends JPanel implements
 	private Logger log = Logger.getAnonymousLogger();
 	
 	//Ссфлка на главный JFrame приложения
-	private ProductsDB prodsdb;
+	private RootFrame prodsdb;
 	
 	//Контроллер для взаимодействия с базой данных
 	private CategoryController cc;
@@ -31,7 +31,7 @@ public class CategoryView extends JPanel implements
 	JButton addCatBtn, delCatBtn;
 	
 	//Конструктор панели по умолчанию
-	public CategoryView(ProductsDB prodsdb) {
+	public CategoryView(RootFrame prodsdb) {
 		this.prodsdb = prodsdb;
 		
 		//Назначаем логгирование в файл

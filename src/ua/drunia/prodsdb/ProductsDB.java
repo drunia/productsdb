@@ -6,21 +6,17 @@
 
 package ua.drunia.prodsdb;
 
-import ua.drunia.prodsdb.logic.*;
-import ua.drunia.prodsdb.gui.*;
-import ua.drunia.prodsdb.util.*;
-
-import java.util.logging.Logger;
-import java.util.logging.Level; 
-import java.io.File;
-import java.sql.ResultSet;
-
 import javax.swing.*;
-import java.awt.*;
+import java.util.logging.*;
 
-public class ProductsDB extends JFrame implements IUserUI {
-	private static Logger log = Logger.getLogger(ProductsDB.class.getName());
-	private Database db;
+import ua.drunia.prodsdb.gui.swing.RootFrame;
+import ua.drunia.prodsdb.logic.Database;
+import ua.drunia.prodsdb.logic.Settings;
+import ua.drunia.prodsdb.util.LogUtil;
+
+
+public class ProductsDB {
+	private static Logger log = Logger.getAnonymousLogger();
 	
 	/**
 	 * Main method - start point app
@@ -31,62 +27,21 @@ public class ProductsDB extends JFrame implements IUserUI {
 		
 		//launch main JFrame in other graphical thread
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() { new ProductsDB().setVisible(true); }
+			public void run() { createGUI(); }
 		});
-	}
+	}	
 	
-	//default constructor of main JFrame
-	public ProductsDB() {
-		super("Главная форма программы");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(500, 500);
-		setLocationRelativeTo(null);
-		
+	public static void createGUI() {
 		//load settings
-		Settings s = Settings.get(this);
-		
+		Settings s = Settings.get();
 		//initialize database
-		db = new Database(this, s.getParam("db.file"));
+		Database db = new Database(s.getParam("db.file"));
 		if (!db.initialized) {
 			log.warning("Database initialization error!");
 			System.exit(1);
 		}
-		
-		//create tab - view categories
-		CategoryView cw = new CategoryView(this);
-		
-		//create JTabbedPane and add our tabs on
-		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Категории", cw);
-		
-		//add JTabbedPane on main JFrame
-		add(tabs, BorderLayout.CENTER);
+		//create swing GUI
+		RootFrame rf = new RootFrame(db);
+		rf.setVisible(true);
 	}
-	
-	//return initialized instance of database
-	public Database getDatabase() {
-		return db;
-	}
-	
-	//called when model has want update GUI
-	public void updateUI(Object source) {
-		log.info(this + " updateUI()");
-	}
-	
-	//called when model has want show error
-	public void error(Exception e) {
-		JOptionPane.showMessageDialog(null, "Ошибка выполнения:\n" + e, "Ошибка", JOptionPane.ERROR_MESSAGE);
-	}
-	
-	//called when model has want something confirm
-	public boolean confirm(String msg) {
-		return false;
-	}
-	
-	//called when model has want show message
-	public void message(String msg){
-		JOptionPane.showMessageDialog(null,
-			"Сообщение от модели/контроллера:\n" + msg, "Простое сообщение", JOptionPane.INFORMATION_MESSAGE);
-	}
-
 }
