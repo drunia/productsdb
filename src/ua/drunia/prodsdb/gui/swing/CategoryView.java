@@ -30,10 +30,11 @@ public class CategoryView extends JPanel implements
 	 * Realization of TreeSelectionListener inteface
 	 * @author drunia
 	 */
-	private class TreeSelectionListener {
+	private class TreeSelListener implements TreeSelectionListener {
+		@Override
 		//called when value selection of node changes
 		public void valueChanged(TreeSelectionEvent e) {
-			log.info("value changed");
+
 		}
 	}
 	
@@ -87,10 +88,11 @@ public class CategoryView extends JPanel implements
 		});
 		
 		//delete button
-		delCatBtn = new JButton("Удалить категорию");
+		delCatBtn = new JButton("Обновить");
 		delCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cc.removeCategory(0);
+				log.info("update()");
+				cc.getCategories(1);
 			}
 		});
 		
@@ -101,17 +103,23 @@ public class CategoryView extends JPanel implements
 		add(btnPanel, BorderLayout.PAGE_END);
 		
 		//categories tree
+		Dimension minSize = new Dimension(200, 200);
+		
 		rootNode = new DefaultMutableTreeNode("Все");
 		tree = new JTree(rootNode);
+		tree.setMinimumSize(minSize);
+		tree.addTreeSelectionListener(new TreeSelListener());
 		
 		//info JTextArea for category
 		catInfo = new JTextArea();
 		catInfo.setEditable(false);
+		catInfo.setMinimumSize(minSize);
 		
 		//splitter
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		split.setLeftComponent(tree);
 		split.setRightComponent(catInfo);
+		split.setDividerLocation(200);
 		
 		add(split, BorderLayout.CENTER);
 		
@@ -121,12 +129,7 @@ public class CategoryView extends JPanel implements
 	
 	//Обработчик всех запросов к БД
 	public boolean sqlQueryReady(ResultSet rs, int callerId) {
-		Thread t = new Thread() { 
-			public void run() {
-				log.info("Current thread name is " + Thread.currentThread().getName());
-			}; };
-		t.setName("druniaListenerThread");
-		t.start();
+
 		//Можно заменить на if (callerId == 1) { .... }
 		switch (callerId) {
 			//Обрабатываю запрос ны выборку категорий
@@ -149,16 +152,47 @@ public class CategoryView extends JPanel implements
 	 * @author drunia
 	 */
 	private boolean buildTreeFromDatabase(ResultSet rs) throws SQLException {
+		ArrayList<Category> cats = new ArrayList<Category>();
 		while (rs.next()) {
 			Category cat = new Category();
 			cat.cat_id = rs.getInt(1);
-			cat.parent_id = rs.getInt(1);
+			cat.parent_id = rs.getInt(2);
 			cat.name = rs.getString(3);
 			cat.description = rs.getString(4);
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(cat.name);
-			node.setUserObject(cat);
-			rootNode.add(node);
+			cats.add(cat);
 		}
+		
+		//add categories to tree
+		rootNode.removeAllChildren();
+		DefaultMutableTreeNode node = null,  node1 = null;	
+		int i = 0;
+		while (cats.size() > 0) {
+			//root categories
+			Category c = cats.get(i);
+			if (c.parent_id == 0) {
+				//System.out.println("find root " + c.cat_id);	
+				node = new DefaultMutableTreeNode(c.name);
+				node.setUserObject(c);
+				rootNode.add(node);
+				cats.remove(c);
+				//System.out.println("M deleted id = " + c.cat_id);
+				//sub categories
+				int j = 0;
+				while ((cats.size() > 0) && (j < cats.size()-1)) {
+					Category c1 = cats.get(j);
+					if (c1.parent_id == c.cat_id) {
+						node1 = new DefaultMutableTreeNode(c1.name);
+						node1.setUserObject(c1);
+						node.add(node1); 
+						node = node1; c = c1; 
+						cats.remove(c); j--;
+						//System.out.println("S deleted id = " + c.cat_id);
+					} 
+					j++;
+				}
+			} else i++;
+		}
+		tree.updateUI();
 		return true;
 	}
 	
@@ -168,6 +202,7 @@ public class CategoryView extends JPanel implements
 	 * @author drunia
 	 */
 	public void updateUI(Object source) {
+		log.info("updateUI");
 		//re-selecting categories from database
 		cc.getCategories(1);
 	}
