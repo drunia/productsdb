@@ -75,6 +75,12 @@ public class CategoryView extends JPanel implements
 	
 	//Обработчик всех запросов к БД
 	public boolean sqlQueryReady(ResultSet rs, int callerId) {
+		Thread t = new Thread() { 
+			public void run() {
+				log.info("Current thread name is " + Thread.currentThread().getName());
+			}; };
+		t.setName("druniaListenerThread");
+		t.start();
 		//Можно заменить на if (callerId == 1) { .... }
 		switch (callerId) {
 			//Обрабатываю запрос ны выборку категорий
