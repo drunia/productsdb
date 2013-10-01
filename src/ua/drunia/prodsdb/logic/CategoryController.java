@@ -44,7 +44,7 @@ public class CategoryController extends Controller {
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();	
 		//Request updateUI event
-		if (res) ui.updateUI(this);
+		ui.updateUI(this);
 		return res;
 	}
 	

@@ -5,8 +5,10 @@ import ua.drunia.prodsdb.util.*;
 import ua.drunia.prodsdb.gui.IUserUI;
 
 import java.util.logging.Logger;
-import java.sql.ResultSet;
+import java.sql.*;
 import javax.swing.*;
+import javax.swing.tree.*;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -14,36 +16,63 @@ import java.util.*;
 public class CategoryView extends JPanel implements 
 	CategoryController.ISqlResultListener, IUserUI {
 	
-	//Создаем класс для логгирования событий
 	private Logger log = Logger.getAnonymousLogger();
-	
-	//Ссфлка на главный JFrame приложения
 	private RootFrame prodsdb;
-	
-	//Контроллер для взаимодействия с базой данных
 	private CategoryController cc;
+	private JTree tree;
+	private JScrollPane catScroll;
+	private JButton addCatBtn, delCatBtn;
+	private JSplitPane split;
+	private JTextArea catInfo;
+	private DefaultMutableTreeNode rootNode;
 	
-	//Таблица для вывода категорий
-	JTable catTable;
-	JScrollPane catScroll;
+	/**
+	 * Realization of TreeSelectionListener inteface
+	 * @author drunia
+	 */
+	private class TreeSelectionListener {
+		//called when value selection of node changes
+		public void valueChanged(TreeSelectionEvent e) {
+			log.info("value changed");
+		}
+	}
 	
-	//Кнопки и т.д.
-	JButton addCatBtn, delCatBtn;
+	/**
+	 * Class wrapper for data from database
+	 * @author drunia
+	 */
+	private class Category {
+		public int cat_id;
+		public int parent_id;
+		public String name;
+		public String description;
+		
+		/**
+		 * Return name of category
+		 * @author drunia
+		 */
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 	
-	//Конструктор панели по умолчанию
+	/**
+	 * Constructor of view Category
+	 * @param prodsdb reference to root JFrame
+	 * @author drunia
+	 */
 	public CategoryView(RootFrame prodsdb) {
 		this.prodsdb = prodsdb;
-		
-		//Назначаем логгирование в файл
 		log.addHandler(LogUtil.getFileHandler());
-		//Устанавливаем лайоут - менеджер
 		setLayout(new BorderLayout());
 		
-		//Создаем наш контроллер
+		//create controller
 		cc = new CategoryController(prodsdb.getDatabase(), this);
 		cc.setSqlResultListener(this);
 		
-		//Создаем кнопки и ложим на панель
+		//create buttons and place him on panel
+		//add button
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -56,20 +85,37 @@ public class CategoryView extends JPanel implements
 				cc.addCategory(0, name, desc);
 			}
 		});
+		
+		//delete button
 		delCatBtn = new JButton("Удалить категорию");
 		delCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (catTable.getSelectedRowCount() == 0) return;
-				int catId = Integer.parseInt((String) catTable.getValueAt(catTable.getSelectedRow(), 0));
-				cc.removeCategory(catId);
+				cc.removeCategory(0);
 			}
 		});
+		
+		//buttons panel
 		JPanel btnPanel = new JPanel();
 		btnPanel.add(addCatBtn);
 		btnPanel.add(delCatBtn);
 		add(btnPanel, BorderLayout.PAGE_END);
 		
-		//Делаем запрос в базу на выборку всех категорий
+		//categories tree
+		rootNode = new DefaultMutableTreeNode("Все");
+		tree = new JTree(rootNode);
+		
+		//info JTextArea for category
+		catInfo = new JTextArea();
+		catInfo.setEditable(false);
+		
+		//splitter
+		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		split.setLeftComponent(tree);
+		split.setRightComponent(catInfo);
+		
+		add(split, BorderLayout.CENTER);
+		
+		//select all categories from database
 		cc.getCategories(1);
 	}
 	
@@ -81,61 +127,66 @@ public class CategoryView extends JPanel implements
 			//1 - это идентификатор запроса на выбор данных из БД
 			case 1: 
 				try {
-					try { remove(catScroll); } catch (Exception e) {} ; 
-					//Выбираем данные для таблицы
-					Vector<String> cols = new Vector<String>();
-					cols.add("Ид. категории");
-					cols.add("Родительский ид");
-					cols.add("Имя");
-					cols.add("Описание");
-					
-					Vector<Vector> data = new Vector<Vector>();
-					while (rs.next()) {
-						Vector<String> vv = new Vector<String>(4);
-						String[] row = new String[4];
-						vv.add(rs.getString(1));
-						vv.add(rs.getString(2));
-						vv.add(rs.getString(3));
-						vv.add(rs.getString(4));
-						data.add(vv);
-					}
-					//Создаем табличку
-					catTable = new JTable(data, cols);
-					catScroll = new JScrollPane(catTable);
-					add(catScroll, BorderLayout.CENTER);
-					updateUI();
-					//Возвращаем true - типа успешно обработали событие
-					return true;
-				} catch (java.sql.SQLException e) {
-					log.info("callerId = " + callerId + e.toString());
+					buildTreeFromDatabase(rs);
+				} catch (SQLException e) {
+					log.warning(e.toString());
 				}
 			break;
 		}
 		
-		//Возвращается true в случае успешной обработки события
+		//returned if events not been handled
 		return false;
 	}
 	
+	/**
+	 * Building categories tree from database
+	 * @author drunia
+	 */
+	private boolean buildTreeFromDatabase(ResultSet rs) throws SQLException {
+		while (rs.next()) {
+			Category cat = new Category();
+			cat.cat_id = rs.getInt(1);
+			cat.parent_id = rs.getInt(1);
+			cat.name = rs.getString(3);
+			cat.description = rs.getString(4);
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(cat.name);
+			node.setUserObject(cat);
+			rootNode.add(node);
+		}
+		return true;
+	}
 	
-	//---------------Методы которые должен обрабатывать каждый View---------------------
 	
-	//Вызывается, когда модель хочет обновить GUI
+	/**
+	 * Called when controller/model wants update GUI
+	 * @author drunia
+	 */
 	public void updateUI(Object source) {
-		log.info("requested UpdateUI()");
+		//re-selecting categories from database
 		cc.getCategories(1);
 	}
 	
-	//Вызывается, когда модель хочет показать ошибку
+	/**
+	 * Called when model/controller want show error
+	 * @author drunia
+	 */
 	public void error(Exception e) {
 		prodsdb.error(e);
 	}
 	
-	//Вызывается, когда модель что - то хочет подтвердить
+	/**
+	 * Called when model/controller something wants confirm
+	 * @return boolean true - yes or false - no
+	 * @author drunia
+	 */
 	public boolean confirm(String msg) {
 		return false;
 	}
 	
-	//Вызывается, когда модель хочет показать сообщение
+	/**
+	 * Called when model/controller wants show message to user
+	 * @author drunia
+	 */
 	public void message(String msg){
 		prodsdb.message(msg);
 	}
