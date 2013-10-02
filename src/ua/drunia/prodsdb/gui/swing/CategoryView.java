@@ -166,7 +166,7 @@ public class CategoryView extends JPanel implements
 		rootNode.removeAllChildren();
 		DefaultMutableTreeNode node = null,  node1 = null;	
 		int i = 0;
-		while (cats.size() > 0) {
+		while ((cats.size() > 0) && i < cats.size()) {
 			//root categories
 			Category c = cats.get(i);
 			if (c.parent_id == 0) {
@@ -178,19 +178,23 @@ public class CategoryView extends JPanel implements
 				//System.out.println("M deleted id = " + c.cat_id);
 				//sub categories
 				int j = 0;
-				while ((cats.size() > 0) && (j < cats.size()-1)) {
+				while (cats.size() > 0 & j < cats.size()) {
 					Category c1 = cats.get(j);
 					if (c1.parent_id == c.cat_id) {
 						node1 = new DefaultMutableTreeNode(c1.name);
 						node1.setUserObject(c1);
 						node.add(node1); 
 						node = node1; c = c1; 
-						cats.remove(c); j--;
+						cats.remove(c); 
 						//System.out.println("S deleted id = " + c.cat_id);
-					} 
-					j++;
-				}
+						j = 0; continue;
+					} else j++;
+				} 
+				i = 0; continue;
 			} else i++;
+			
+			//System.out.println("cats.size() =  " + cats.size() + " i = " + i);
+			//try { Thread.sleep(100); } catch (Exception e) {};
 		}
 		tree.updateUI();
 		return true;
