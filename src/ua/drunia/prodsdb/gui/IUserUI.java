@@ -5,8 +5,6 @@ import java.io.File;
 import java.sql.ResultSet;
 
 public interface IUserUI {
-    enum DialogType {OPEN, SAVE};
-	
 	/**
 	 * Update, when model want update data in UI
 	 * @author drunia
