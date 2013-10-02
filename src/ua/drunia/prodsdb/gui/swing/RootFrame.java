@@ -39,7 +39,7 @@ public class RootFrame extends JFrame implements IUserUI {
 		
 		//create JTabbedPane and add our tabs on
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Категории", cw);
+		tabs.addTab("Категории товаров", cw);
 		
 		//add JTabbedPane on main JFrame
 		add(tabs, BorderLayout.CENTER);

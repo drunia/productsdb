@@ -43,7 +43,7 @@ public class CategoryController extends Controller {
 			" VALUES ('" + parentId + "', '" + name + "', '" + desc + "');";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();	
-		//Request updateUI event
+		//request updateUI event
 		if (res) ui.updateUI(this);
 		return res;
 	}
@@ -73,7 +73,7 @@ public class CategoryController extends Controller {
 		sql = "DELETE FROM categories WHERE cat_id = '" + id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
-		//Request updateUI event
+		//request updateUI event
 		if (res) ui.updateUI(this);	
 		return res;
 	}

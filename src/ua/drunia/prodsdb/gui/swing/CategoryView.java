@@ -25,6 +25,85 @@ public class CategoryView extends JPanel implements
 	private JSplitPane split;
 	private JTextArea catInfo;
 	private DefaultMutableTreeNode rootNode;
+	private ArrayList<Category> cats;
+	
+	//////////////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Add/Edit category dialog
+	 * @author drunia
+	 */
+	private class AddDialog extends JDialog {
+		private JPanel editPanel = new JPanel();
+		private JButton okBtn = new JButton("Ок");
+		private JButton cancelBtn = new JButton("Отмена");
+		private JComboBox<Category> catCmbBox = new JComboBox<Category>();
+		private JTextField catNameTf = new JTextField();
+		private JTextArea descArea = new JTextArea();
+		private JLabel parentLb = new JLabel("Родительская категория:");
+		private JLabel nameLb = new JLabel("Название категории:");
+		private JLabel descLb = new JLabel("Описание категории:");
+		
+		public AddDialog(boolean isEdit) {
+			super(prodsdb, "Добавление категории", true);
+			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			setSize(400, 300);
+			setLocationRelativeTo(prodsdb);
+			
+			//get selected node for editing or adding new
+			DefaultMutableTreeNode node = 
+				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+			
+			GridLayout gridLay = new GridLayout(3, 2);
+			gridLay.setVgap(5); gridLay.setHgap(5);
+			editPanel.setLayout(gridLay);
+			editPanel.add(parentLb);
+			
+			//init categories list
+			Category root = new Category();
+			root.name = "Корень";
+			catCmbBox.addItem(root);
+			for (int i = 0; i < cats.size(); i++) {
+				catCmbBox.addItem(cats.get(i));
+				if (isEdit) {
+					DefaultMutableTreeNode parent = 
+						(DefaultMutableTreeNode) node.getParent();
+					Category c = (Category) parent.getUserObject();
+					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
+				}
+			}
+			editPanel.add(catCmbBox);
+			
+			editPanel.add(nameLb);
+			editPanel.add(catNameTf);
+			editPanel.add(descLb);
+			descArea.setBorder(
+				BorderFactory.createEtchedBorder(1));
+			descArea.setPreferredSize(new Dimension(0, 50));
+			add(descArea, BorderLayout.CENTER);
+			add(editPanel, BorderLayout.PAGE_START);
+			
+			//buttons
+			okBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+				}
+			});
+			cancelBtn.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+				}
+			});
+			FlowLayout flowLay = new FlowLayout();
+			JPanel btnPanel = new JPanel(flowLay);
+			btnPanel.add(okBtn); btnPanel.add(cancelBtn);
+			add(btnPanel, BorderLayout.PAGE_END);
+		}
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Realization of TreeSelectionListener inteface
@@ -34,9 +113,17 @@ public class CategoryView extends JPanel implements
 		@Override
 		//called when value selection of node changes
 		public void valueChanged(TreeSelectionEvent e) {
-
+			DefaultMutableTreeNode node = 
+				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+			if (node == null || node == rootNode) return;
+			//insert description in catInfo
+			Category c = (Category) node.getUserObject();
+			catInfo.setText("cat_id  = " + c.cat_id + "\nparent_id = " +
+				c.parent_id + "\n\n" + c.description);
 		}
 	}
+
+	////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Class wrapper for data from database
@@ -58,6 +145,8 @@ public class CategoryView extends JPanel implements
 		}
 	}
 	
+	////////////////////////////////////////////////////////////////////////////
+	
 	/**
 	 * Constructor of view Category
 	 * @param prodsdb reference to root JFrame
@@ -77,13 +166,7 @@ public class CategoryView extends JPanel implements
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String name = JOptionPane.showInputDialog("Введите название категории");
-				String desc = JOptionPane.showInputDialog("Введите описание категории");
-				if ((name == null) || (desc == null)) {
-					error(new Exception("Нельзя внести пустые значения"));
-					return;
-				}
-				cc.addCategory(0, name, desc);
+				new AddDialog().setVisible(true);
 			}
 		});
 		
@@ -91,7 +174,7 @@ public class CategoryView extends JPanel implements
 		delCatBtn = new JButton("Обновить");
 		delCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				log.info("update()");
+				//update categories tree
 				cc.getCategories(1);
 			}
 		});
@@ -106,8 +189,13 @@ public class CategoryView extends JPanel implements
 		Dimension minSize = new Dimension(200, 200);
 		
 		rootNode = new DefaultMutableTreeNode("Все");
+		Category root = new Category();
+		root.cat_id = 0; root.parent_id = 0;
+		rootNode.setUserObject(root);
 		tree = new JTree(rootNode);
 		tree.setMinimumSize(minSize);
+		tree.getSelectionModel().setSelectionMode(
+			TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelListener());
 		
 		//info JTextArea for category
@@ -127,32 +215,35 @@ public class CategoryView extends JPanel implements
 		cc.getCategories(1);
 	}
 	
-	//Обработчик всех запросов к БД
+	/**
+	 * Database answers handler, called when database complete 
+	 * controller request
+	 * @param rs completed ResultSet from database
+	 * @param callerId identifi who requested data
+	 * @author drunia
+	 */
 	public boolean sqlQueryReady(ResultSet rs, int callerId) {
-
-		//Можно заменить на if (callerId == 1) { .... }
 		switch (callerId) {
-			//Обрабатываю запрос ны выборку категорий
-			//1 - это идентификатор запроса на выбор данных из БД
 			case 1: 
 				try {
-					buildTreeFromDatabase(rs);
+					return buildTreeFromDatabase(rs);
 				} catch (SQLException e) {
 					log.warning(e.toString());
 				}
 			break;
 		}
 		
-		//returned if events not been handled
+		//returned false if events not been handled
 		return false;
 	}
 	
 	/**
 	 * Building categories tree from database
+	 * @param rs complete ResultSet from database 
 	 * @author drunia
 	 */
 	private boolean buildTreeFromDatabase(ResultSet rs) throws SQLException {
-		ArrayList<Category> cats = new ArrayList<Category>();
+		cats = new ArrayList<Category>();
 		while (rs.next()) {
 			Category cat = new Category();
 			cat.cat_id = rs.getInt(1);
@@ -161,52 +252,51 @@ public class CategoryView extends JPanel implements
 			cat.description = rs.getString(4);
 			cats.add(cat);
 		}
-		
 		//add categories to tree
 		rootNode.removeAllChildren();
-		DefaultMutableTreeNode node = null,  node1 = null;	
-		int i = 0;
-		while ((cats.size() > 0) && i < cats.size()) {
-			//root categories
+		DefaultMutableTreeNode node = null;	
+		for (int i = 0; i < cats.size(); i++) {
 			Category c = cats.get(i);
 			if (c.parent_id == 0) {
-				//System.out.println("find root " + c.cat_id);	
-				node = new DefaultMutableTreeNode(c.name);
-				node.setUserObject(c);
+				node = new DefaultMutableTreeNode(c);
+				node.setUserObject(c);			
 				rootNode.add(node);
-				cats.remove(c);
-				//System.out.println("M deleted id = " + c.cat_id);
-				//sub categories
-				int j = 0;
-				while (cats.size() > 0 & j < cats.size()) {
-					Category c1 = cats.get(j);
-					if (c1.parent_id == c.cat_id) {
-						node1 = new DefaultMutableTreeNode(c1.name);
-						node1.setUserObject(c1);
-						node.add(node1); 
-						node = node1; c = c1; 
-						cats.remove(c); 
-						//System.out.println("S deleted id = " + c.cat_id);
-						j = 0; continue;
-					} else j++;
-				} 
-				i = 0; continue;
-			} else i++;
-			
-			//System.out.println("cats.size() =  " + cats.size() + " i = " + i);
-			//try { Thread.sleep(100); } catch (Exception e) {};
+				addSubNode(node, cats);
+			}
 		}
+		//update tree UI
 		tree.updateUI();
+		//expand all tree
+		for (int i = 0; i < tree.getRowCount(); i++) tree.expandRow(i);
+		
 		return true;
 	}
-	
+			
+	/* Add recursive subnode 
+	 * @param n parent node
+	 * @param cats list of all categories
+	 * @author drunia
+	 */
+	private void addSubNode(DefaultMutableTreeNode n, ArrayList<Category> cats) {
+		DefaultMutableTreeNode node = null;	
+		for (int i = 0; i < cats.size(); i++) {
+			Category c = (Category) n.getUserObject();
+			Category c1 = cats.get(i);
+			if (c1.parent_id == c.cat_id) {
+				node = new DefaultMutableTreeNode(c1);
+				node.setUserObject(c1);			
+				n.add(node);
+				addSubNode(node, cats);
+			}
+		}
+	}
+
 	
 	/**
 	 * Called when controller/model wants update GUI
 	 * @author drunia
 	 */
 	public void updateUI(Object source) {
-		log.info("updateUI");
 		//re-selecting categories from database
 		cc.getCategories(1);
 	}
@@ -235,5 +325,4 @@ public class CategoryView extends JPanel implements
 	public void message(String msg){
 		prodsdb.message(msg);
 	}
-	
 }
