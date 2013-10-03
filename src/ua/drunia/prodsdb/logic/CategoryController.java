@@ -70,12 +70,31 @@ public class CategoryController extends Controller {
 			log.log(Level.WARNING, "Error in check products on link to this category", e);
 		}
 		
+		//check children categories
+		boolean deleteChild = true;
+		try {	
+			deleteChild = true;
+			sql = "SELECT COUNT(*) FROM categories WHERE cat_parent_id = '" + id + "';";
+			if (db.executeQuery(sql).getInt(1) > 0) {
+					boolean uiconfirm = ui.confirm("Удалить с подкатегориями ?");
+					if (uiconfirm) {
+						sql = "DELETE FROM categories WHERE parent_id = '" + id + "';";
+						deleteChild = (db.executeUpdate(sql) > 0);
+					} else {
+						db.commit();
+						return false;
+					}
+			}
+		} catch (SQLException e) { ui.error(e); }
+		
+		//delete selected category
 		sql = "DELETE FROM categories WHERE cat_id = '" + id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
+		
 		//request updateUI event
-		if (res) ui.updateUI(this);	
-		return res;
+		if (res && deleteChild) ui.updateUI(this);	
+		return (res && deleteChild);
 	}
 	
 	/**
