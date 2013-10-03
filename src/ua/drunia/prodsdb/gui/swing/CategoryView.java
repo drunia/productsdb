@@ -68,6 +68,7 @@ public class CategoryView extends JPanel implements
 				if (isEdit) {
 					DefaultMutableTreeNode parent = 
 						(DefaultMutableTreeNode) node.getParent();
+					if (parent == null) parent = node;
 					Category c = (Category) parent.getUserObject();
 					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
 				}
@@ -202,9 +203,9 @@ public class CategoryView extends JPanel implements
 		//categories tree
 		Dimension minSize = new Dimension(200, 200);
 		
-		rootNode = new DefaultMutableTreeNode("Все");
+		rootNode = new DefaultMutableTreeNode();
 		Category root = new Category();
-		root.cat_id = 0; root.parent_id = 0;
+		root.cat_id = 0; root.parent_id = 0; root.name = "Товары";
 		rootNode.setUserObject(root);
 		tree = new JTree(rootNode);
 		tree.setMinimumSize(minSize);
@@ -329,8 +330,8 @@ public class CategoryView extends JPanel implements
 	 * @author drunia
 	 */
 	public boolean confirm(String msg) {
-		return JOptionPane.showConfirmDialog(prodsdb, "Удалить с подкатегориями?",
-			"Tittleeeee",  JOptionPane.YES_NO_OPTION) > 0;
+		return (JOptionPane.showConfirmDialog(prodsdb, msg, "Подтверждение",
+			JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
 	}
 	
 	/**

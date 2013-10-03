@@ -16,7 +16,7 @@ import java.sql.SQLException;
 
  
 public class CategoryController extends Controller {
-	private static Logger log = Logger.getLogger(CategoryController.class.getName());
+	private static Logger log = Logger.getAnonymousLogger();
 	
 	/**
 	 * Contructor controller with db and ui
@@ -43,8 +43,31 @@ public class CategoryController extends Controller {
 			" VALUES ('" + parentId + "', '" + name + "', '" + desc + "');";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();	
+		
 		//request updateUI event
 		if (res) ui.updateUI(this);
+		return res;
+	}
+	
+	/**
+	 * Recursive delete categories in tree
+	 * @param cat_id root category
+	 * @return boolean [true - delete OK | false delete FAIL]
+	 * @author drunia
+     */	 
+	private boolean removeSubCategories(int cat_id) {
+		//ATENTION beginTransaction() must be already opened.
+		String sql = "SELECT cat_id FROM categories WHERE cat_parent_id = " + cat_id;
+		ResultSet rs = db.executeQuery(sql);
+		boolean res = false;
+		try {
+			while (rs.next()) {
+				int rm_id = rs.getInt(1);
+				res = removeSubCategories(rm_id);
+				sql = "DELETE FROM categories WHERE cat_id = '" + rm_id + "';";
+				res = (db.executeUpdate(sql) > 0);
+			}
+		} catch (SQLException e) { log.warning(e.toString()); }
 		return res;
 	}
 	
@@ -52,14 +75,14 @@ public class CategoryController extends Controller {
 	 * Method remove category from db
 	 * Before delete category method check link data from table
 	 * products to table categories. If not linked - delete category
-	 * @param id - category id in database
+	 * @param cat_id id category id in database
 	 * @author drunia
 	 */
-	public boolean removeCategory(int id) {
-		if (!db.beginTransaction()) return false;
+	public boolean removeCategory(int cat_id) {
+		if (cat_id == 0 || !db.beginTransaction()) return false;
 		
 		//check products on link to this category
-		String sql = "SELECT COUNT(*) FROM products WHERE product_cat_id = '" + id + "';";
+		String sql = "SELECT COUNT(*) FROM products WHERE product_cat_id = '" + cat_id + "';";
 		try {	
 			if (db.executeQuery(sql).getInt(1) > 0) {
 				db.rollback();
@@ -74,21 +97,24 @@ public class CategoryController extends Controller {
 		boolean deleteChild = true;
 		try {	
 			deleteChild = true;
-			sql = "SELECT COUNT(*) FROM categories WHERE cat_parent_id = '" + id + "';";
+			sql = "SELECT COUNT(*) FROM categories WHERE cat_parent_id = '" + cat_id + "';";
 			if (db.executeQuery(sql).getInt(1) > 0) {
-					boolean uiconfirm = ui.confirm("Ğ£Ğ´Ğ°Ğ»Ğ¸Ñ‚ÑŒ Ñ Ğ¿Ğ¾Ğ´ĞºĞ°Ñ‚ĞµĞ³Ğ¾Ñ€Ğ¸ÑĞ¼Ğ¸ ?");
-					if (uiconfirm) {
-						sql = "DELETE FROM categories WHERE parent_id = '" + id + "';";
-						deleteChild = (db.executeUpdate(sql) > 0);
-					} else {
-						db.commit();
-						return false;
-					}
+				boolean uiconfirm = ui.confirm("Óäàëèòü ñ ïîäêàòåãîğèÿìè ?");
+				if (uiconfirm) {
+					deleteChild = removeSubCategories(cat_id);
+				} else {
+					db.rollback();
+					return false;
+				}
 			}
-		} catch (SQLException e) { ui.error(e); }
+		} catch (SQLException e) { 
+			db.rollback();
+			ui.error(e);
+			return false;
+		}
 		
 		//delete selected category
-		sql = "DELETE FROM categories WHERE cat_id = '" + id + "';";
+		sql = "DELETE FROM categories WHERE cat_id = '" + cat_id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
 		
@@ -114,17 +140,17 @@ public class CategoryController extends Controller {
 	
 	/**
 	 * Method edit category in db
-	 * @param idEditCategory - edit category
+	 * @param cat_id id edit category
 	 * @param newParentId - new parent category id 
 	 * @param newName - new name of category
 	 * @param newDesc - new description of category
 	 */
-	public boolean editCategory(int idEditCategory, int newParentId, String newName, String newDesc) {
-		if (!db.beginTransaction()) return false;
+	public boolean editCategory(int cat_id, int newParentId, String newName, String newDesc) {
+		if (cat_id == 0 || !db.beginTransaction()) return false;
 		
 		String sql = "UPDATE categories SET cat_parent_id = '" + newParentId + "', " +
 			"name = '" + newName + "', description = '" + newDesc + "' " +
-			"WHERE cat_id = '" + idEditCategory + "';";
+			"WHERE cat_id = '" + cat_id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
 		return res;
