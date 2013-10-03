@@ -50,6 +50,7 @@ public class CategoryController extends Controller {
 	}
 	
 	/**
+	 * Service method for removeCategory()
 	 * Recursive delete categories in tree
 	 * @param cat_id root category
 	 * @return boolean [true - delete OK | false delete FAIL]
@@ -99,7 +100,7 @@ public class CategoryController extends Controller {
 			deleteChild = true;
 			sql = "SELECT COUNT(*) FROM categories WHERE cat_parent_id = '" + cat_id + "';";
 			if (db.executeQuery(sql).getInt(1) > 0) {
-				boolean uiconfirm = ui.confirm("Удалить с подкатегориями ?");
+				boolean uiconfirm = ui.confirm("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ?");
 				if (uiconfirm) {
 					deleteChild = removeSubCategories(cat_id);
 				} else {
