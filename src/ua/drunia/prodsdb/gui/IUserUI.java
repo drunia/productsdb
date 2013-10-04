@@ -1,8 +1,8 @@
 package ua.drunia.prodsdb.gui;
 
 import java.io.File;
-
 import java.sql.ResultSet;
+import java.util.ResorceBundle;
 
 public interface IUserUI {
 	/**
@@ -12,7 +12,7 @@ public interface IUserUI {
     void updateUI(Object source);
 	/**
 	 * Show error dialog, if error occured
-	 * @param e - raised Exception
+	 * @param e Exception
 	 * @author drunia
 	 */
 	void error(Exception e);
@@ -24,8 +24,15 @@ public interface IUserUI {
 	void message(String msg);
 	/**
 	 * Confirmation dialog yes/no
-	 * @param msg - query message
+	 * @param msg query message
 	 * @author drunia
 	 */	
 	boolean confirm(String msg);
+	/**
+	 * Localize UI. This method must 
+     * reinitialize language dependens components	 
+	 * @param langRes initialized java.util.ResorceBundle
+	 * @author drunia
+	 */
+	void localize(ResourceBundle langRes);
 }

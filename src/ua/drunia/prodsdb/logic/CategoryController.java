@@ -100,7 +100,7 @@ public class CategoryController extends Controller {
 			deleteChild = true;
 			sql = "SELECT COUNT(*) FROM categories WHERE cat_parent_id = '" + cat_id + "';";
 			if (db.executeQuery(sql).getInt(1) > 0) {
-				boolean uiconfirm = ui.confirm("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ?");
+				boolean uiconfirm = ui.confirm("Удалить с подкатегориями ?");
 				if (uiconfirm) {
 					deleteChild = removeSubCategories(cat_id);
 				} else {
