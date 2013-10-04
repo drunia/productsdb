@@ -96,7 +96,8 @@ public class DatabaseUpdater {
 		 */ 
 		sql = "CREATE TABLE clients (" + 
 			"client_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"name TEXT NOT NULL);";
+			"name TEXT NOT NULL, client_tel TEXT NOT NULL, client_address TEXT, " +
+			"client_notes TEXT);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		/*

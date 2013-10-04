@@ -21,7 +21,7 @@ public class CategoryView extends JPanel implements
 	private CategoryController cc;
 	private JTree tree;
 	private JScrollPane catScroll;
-	private JButton addCatBtn, delCatBtn;
+	private JButton addCatBtn, delCatBtn, updCatBtn;
 	private JSplitPane split;
 	private JTextArea catInfo;
 	private DefaultMutableTreeNode rootNode;
@@ -68,6 +68,7 @@ public class CategoryView extends JPanel implements
 				if (isEdit) {
 					DefaultMutableTreeNode parent = 
 						(DefaultMutableTreeNode) node.getParent();
+					if (parent == null) parent = node;
 					Category c = (Category) parent.getUserObject();
 					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
 				}
@@ -166,13 +167,26 @@ public class CategoryView extends JPanel implements
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new AddDialog().setVisible(true);
+				new AddDialog(true).setVisible(true);
 			}
 		});
 		
-		//delete button
-		delCatBtn = new JButton("Обновить");
+		//delete buton
+		delCatBtn = new JButton("Удалить");
 		delCatBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DefaultMutableTreeNode n = 
+					(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				if (n == null) return;
+				Category c = (Category) n.getUserObject();
+				cc.removeCategory(c.cat_id);
+			}
+		});
+		
+		//update button
+		updCatBtn = new JButton("Обновить");
+		updCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//update categories tree
 				cc.getCategories(1);
@@ -183,14 +197,15 @@ public class CategoryView extends JPanel implements
 		JPanel btnPanel = new JPanel();
 		btnPanel.add(addCatBtn);
 		btnPanel.add(delCatBtn);
+		btnPanel.add(updCatBtn);
 		add(btnPanel, BorderLayout.PAGE_END);
 		
 		//categories tree
 		Dimension minSize = new Dimension(200, 200);
 		
-		rootNode = new DefaultMutableTreeNode("Все");
+		rootNode = new DefaultMutableTreeNode();
 		Category root = new Category();
-		root.cat_id = 0; root.parent_id = 0;
+		root.cat_id = 0; root.parent_id = 0; root.name = "Товары";
 		rootNode.setUserObject(root);
 		tree = new JTree(rootNode);
 		tree.setMinimumSize(minSize);
@@ -315,7 +330,8 @@ public class CategoryView extends JPanel implements
 	 * @author drunia
 	 */
 	public boolean confirm(String msg) {
-		return false;
+		return (JOptionPane.showConfirmDialog(prodsdb, msg, "Подтверждение",
+			JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
 	}
 	
 	/**
