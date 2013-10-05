@@ -80,7 +80,7 @@ public class CategoryController extends Controller {
 	 * @author drunia
 	 */
 	public boolean removeCategory(int cat_id) {
-		if (!ui.confirm("¬ы точно хотите удалить выбраную категорию")) return;
+		if (!ui.confirm("¬ы точно хотите удалить выбраную категорию")) return false;
 		if (cat_id == 0 || !db.beginTransaction()) return false;
 		
 		//check products on link to this category
