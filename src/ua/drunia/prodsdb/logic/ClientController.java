@@ -11,9 +11,7 @@ import ua.drunia.prodsdb.util.LogUtil;
  
 import java.util.logging.*;
  
-public class ClientController extends Controller implements
-	IUserUI, Controller.SqlQueryReadyListener {
-
+public class ClientController extends Controller {
 	private Logger = Logger.getAnonymousLogger();
 	
 	/**

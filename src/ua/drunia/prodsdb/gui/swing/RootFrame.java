@@ -20,6 +20,7 @@ import java.awt.*;
 
 public class RootFrame extends JFrame implements IUserUI {
 	private static Logger log = Logger.getAnonymousLogger();
+	private ResorceBundle langRes;
 	private Database db;
 	
 	//default constructor of main JFrame

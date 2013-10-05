@@ -154,6 +154,7 @@ public class CategoryController extends Controller {
 			"WHERE cat_id = '" + cat_id + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
+		if (res) ui.updateUI(this);
 		return res;
 	}
 	
