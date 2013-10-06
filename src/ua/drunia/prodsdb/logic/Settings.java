@@ -6,12 +6,9 @@
 
 package ua.drunia.prodsdb.logic;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import java.util.Properties;
+import java.io.*;
+import java.io.*;
+import java.util.*;
 import java.util.logging.*;
 
 import ua.drunia.prodsdb.util.LogUtil;
@@ -19,8 +16,10 @@ import ua.drunia.prodsdb.util.LogUtil;
 public class Settings {
 	private Logger log = Logger.getAnonymousLogger();
 	private static final String CONF_FILE = "productsdb.conf";
+	private static final String LANG_FILE = "/ua/drunia/prodsdb/lang_";
 	private static Settings instance;
 	private Properties settings;
+	private Properties langRes;
 	
 	/*
 	 * Hide public constructor
@@ -28,7 +27,34 @@ public class Settings {
 	private Settings() {
 		log.addHandler(LogUtil.getFileHandler());
 		settings = new Properties();
+		langRes = new Properties();;
 		read();
+	}
+	
+	/**
+	 * Reading bundle with language 
+	 * @param locale specific language locale
+	 * @author drunia
+	 */
+	public void initLangResources(Locale locale) {
+		FileReader fr;
+		try {
+			String langPath = LANG_FILE + laocale.getDisplayLanguage();
+			InputStream is = getClass().getResourceAsStream(langPath);
+			InputStreamReader isr = new InputStreamReader(is);
+			langRes.load(isr);
+		} catch (IOException e) {
+			log.warning("Error loading lang: " + e.toString());
+		}
+	}
+	
+	/**
+	 * Get langRes object
+	 * @return ResorceBundle  
+	 * @author drunia
+	 */
+	public Properties getLangResources() {
+		return langRes;
 	}
 	
 	/**
@@ -55,6 +81,7 @@ public class Settings {
 				CONF_FILE + "\" not found, initialize default settings").toString());
 			settings.setProperty("db.file", "products.db");
 			settings.setProperty("db.timeout", "30");
+			settings.setProperty("lang.locale", "ru");
 			return;
 		}
 		try {

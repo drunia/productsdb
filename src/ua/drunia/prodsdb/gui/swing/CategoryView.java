@@ -341,4 +341,13 @@ public class CategoryView extends JPanel implements
 	public void message(String msg){
 		prodsdb.message(msg);
 	}
+	
+	/**
+	 * Localize view
+	 * @param langRes initialized ResourceBundle
+	 * @author drunia
+	 */
+	public void localize(Properties langRes) {
+		log.info("category LOCALIZED");
+	}
 }

@@ -2,7 +2,7 @@ package ua.drunia.prodsdb.gui;
 
 import java.io.File;
 import java.sql.ResultSet;
-import java.util.ResorceBundle;
+import java.util.Properties;
 
 public interface IUserUI {
 	/**
@@ -34,5 +34,5 @@ public interface IUserUI {
 	 * @param langRes initialized java.util.ResorceBundle
 	 * @author drunia
 	 */
-	void localize(ResourceBundle langRes);
+	void localize(Properties langRes);
 }

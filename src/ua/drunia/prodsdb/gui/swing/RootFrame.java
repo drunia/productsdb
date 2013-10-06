@@ -8,28 +8,25 @@ package ua.drunia.prodsdb.gui.swing;
 
 import ua.drunia.prodsdb.logic.*;
 import ua.drunia.prodsdb.gui.*;
-import ua.drunia.prodsdb.util.*;
 
 import java.util.logging.Logger;
 import java.util.logging.Level; 
-import java.io.File;
+import java.io.*;
 import java.sql.ResultSet;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
 
 public class RootFrame extends JFrame implements IUserUI {
 	private static Logger log = Logger.getAnonymousLogger();
-	private ResorceBundle langRes;
 	private Database db;
+	private Settings settings = Settings.get();
 	
 	//default constructor of main JFrame
 	public RootFrame(Database db) {
 		super("Главная форма программы");		;
 		this.db = db;
-		
-		//load settings
-		Settings s = Settings.get();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(500, 500);
@@ -44,6 +41,25 @@ public class RootFrame extends JFrame implements IUserUI {
 		
 		//add JTabbedPane on main JFrame
 		add(tabs, BorderLayout.CENTER);
+		
+		//localize UI
+		localizeUI(new Locale(settings.getParam("lang.locale")), tabs);
+	}
+	
+	/**
+	 * Localize all views by initialized Locale
+	 * @param locale selected locale
+	 * @tabs views on JTabbedPane
+	 * @author drunia
+	 */
+	private void localizeUI(Locale locale, JTabbedPane tabs) {
+		settings.initLangResources(locale);
+		Properties langRes = settings.getLangResources();
+		//localize self
+		localize(langRes);
+		//localize all views (JPanels)
+		for (int i = 0; i < tabs.getTabCount(); i++) 
+			((IUserUI) tabs.getComponentAt(i)).localize(langRes);
 	}
 	
 	//return initialized instance of database
@@ -70,6 +86,10 @@ public class RootFrame extends JFrame implements IUserUI {
 	public void message(String msg){
 		JOptionPane.showMessageDialog(null,
 			"Сообщение от модели/контроллера:\n" + msg, "Простое сообщение", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void localize(Properties langRes) {
+		setTitle(langRes.getProperty("ROOT_TITLE"));
 	}
 
 }
