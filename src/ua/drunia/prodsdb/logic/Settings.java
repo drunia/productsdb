@@ -16,7 +16,7 @@ import ua.drunia.prodsdb.util.LogUtil;
 public class Settings {
 	private Logger log = Logger.getAnonymousLogger();
 	private static final String CONF_FILE = "productsdb.conf";
-	private static final String LANG_FILE = "/ua/drunia/prodsdb/lang_";
+	private static final String LANG_FILE = "/ua/drunia/prodsdb/lang/lang_";
 	private static Settings instance;
 	private Properties settings;
 	private Properties langRes;
@@ -39,7 +39,8 @@ public class Settings {
 	public void initLangResources(Locale locale) {
 		FileReader fr;
 		try {
-			String langPath = LANG_FILE + laocale.getDisplayLanguage();
+			String langPath = LANG_FILE + locale.getLanguage();
+			System.out.println(langPath);
 			InputStream is = getClass().getResourceAsStream(langPath);
 			InputStreamReader isr = new InputStreamReader(is);
 			langRes.load(isr);
@@ -81,7 +82,7 @@ public class Settings {
 				CONF_FILE + "\" not found, initialize default settings").toString());
 			settings.setProperty("db.file", "products.db");
 			settings.setProperty("db.timeout", "30");
-			settings.setProperty("lang.locale", "ru");
+			settings.setProperty("lang.locale", Locale.getDefault().getLanguage());
 			return;
 		}
 		try {

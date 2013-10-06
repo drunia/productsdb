@@ -21,6 +21,7 @@ import java.util.*;
 public class RootFrame extends JFrame implements IUserUI {
 	private static Logger log = Logger.getAnonymousLogger();
 	private Database db;
+	private JTabbedPane tabs;
 	private Settings settings = Settings.get();
 	
 	//default constructor of main JFrame
@@ -36,14 +37,14 @@ public class RootFrame extends JFrame implements IUserUI {
 		CategoryView cw = new CategoryView(this);
 		
 		//create JTabbedPane and add our tabs on
-		JTabbedPane tabs = new JTabbedPane();
+		tabs = new JTabbedPane();
 		tabs.addTab("Категории товаров", cw);
 		
 		//add JTabbedPane on main JFrame
 		add(tabs, BorderLayout.CENTER);
 		
 		//localize UI
-		localizeUI(new Locale(settings.getParam("lang.locale")), tabs);
+		localizeUI(new Locale("RU"), tabs);
 	}
 	
 	/**
@@ -90,6 +91,7 @@ public class RootFrame extends JFrame implements IUserUI {
 	
 	public void localize(Properties langRes) {
 		setTitle(langRes.getProperty("ROOT_TITLE"));
+		tabs.setTitleAt(0, langRes.getProperty("CAT_VIEW_TITTLE"));
 	}
 
 }

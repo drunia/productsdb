@@ -348,6 +348,8 @@ public class CategoryView extends JPanel implements
 	 * @author drunia
 	 */
 	public void localize(Properties langRes) {
-		log.info("category LOCALIZED");
+		addCatBtn.setText(langRes.getProperty("CAT_ADD_BTN"));
+		delCatBtn.setText(langRes.getProperty("CAT_DEL_BTN"));
+		updCatBtn.setText(langRes.getProperty("CAT_UPD_BTN"));
 	}
 }
