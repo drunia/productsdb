@@ -110,11 +110,12 @@ public class DatabaseUpdater {
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 	   /*
-		* shoppinng table
+		* orders table
 		*/ 
-		sql = "CREATE TABLE shopping (" + 
-			"shop_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"client_id INTEGER NOT NULL, product_id INTEGER NOT NULL);";
+		sql = "CREATE TABLE orders (" + 
+			"order_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"order_articul TEXT NOT NULL, client_id INTEGER NOT NULL, " + 
+			"product_id INTEGER NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		return true;

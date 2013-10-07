@@ -1,8 +1,0 @@
-#Main window
-ROOT_TITLE=Main application window
-
-#Category view
-CAT_VIEW_TITTLE=Products category
-CAT_ADD_BTN=Add new
-CAT_DEL_BTN=Delete
-CAT_UPD_BTN=Update

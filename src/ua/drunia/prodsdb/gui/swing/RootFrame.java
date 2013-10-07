@@ -8,6 +8,7 @@ package ua.drunia.prodsdb.gui.swing;
 
 import ua.drunia.prodsdb.logic.*;
 import ua.drunia.prodsdb.gui.*;
+import ua.drunia.prodsdb.util.*;
 
 import java.util.logging.Logger;
 import java.util.logging.Level; 
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
 public class RootFrame extends JFrame implements IUserUI {
@@ -23,15 +25,90 @@ public class RootFrame extends JFrame implements IUserUI {
 	private Database db;
 	private JTabbedPane tabs;
 	private Settings settings = Settings.get();
+	private MenuBar menu; 
+	
+	/**
+	 * MainMenu class
+	 * @author drunia
+	 */
+	private class MenuBar extends JMenuBar {
+		private JMenu settingsMenu;
+		private JMenu langMenu;
+		
+		//private inner-inner class action-handler
+		class ChangeLangListener implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem item = (JMenuItem) e.getSource();
+				//call localizeUI() for localize UI by selected language
+				localizeUI(item.getLocale(), tabs);
+			}
+		}
+		
+		/**
+		 * Default constructor
+		 * @author drunia
+		 */
+		public MenuBar() {
+			super();
+			settingsMenu = new JMenu();
+			add(settingsMenu);
+			langMenu = new JMenu();
+			settingsMenu.add(langMenu);
+			
+			//find languages and add them to menu
+			ChangeLangListener changeLangListener = new ChangeLangListener();
+			ButtonGroup langGroup = new ButtonGroup();
+			for (String lang : getAvailableLanguages()) {
+				Locale langLocale = Locale.forLanguageTag(lang);
+				Locale rootLocale = RootFrame.this.getLocale();
+				JRadioButtonMenuItem langMenuItem = 
+					new JRadioButtonMenuItem(langLocale.getDisplayLanguage());
+				langGroup.add(langMenuItem);
+				langMenuItem.setLocale(langLocale);
+				langMenuItem.addActionListener(changeLangListener);
+				langMenuItem.setSelected(
+					langLocale.getLanguage().equals(rootLocale.getLanguage()));
+				langMenu.add(langMenuItem);
+			}
+		}
+		
+		/**
+		 * Localize menu
+		 * @author drunia
+		 */
+		public void localize() {
+			Properties langRes = Settings.get().getLangResources();
+			settingsMenu.setText(langRes.getProperty("ROOT_MENU_SETTINGS"));
+			langMenu.setText(langRes.getProperty("ROOT_MENU_LANGS"));
+		}
+		
+	} 
+	
+	private class RootFrameListener extends WindowAdapter {
+		@Override
+		public void windowClosing(WindowEvent e) {
+			settings.save();
+		}
+	}
 	
 	//default constructor of main JFrame
 	public RootFrame(Database db) {
-		super("Главная форма программы");		;
+		super();
 		this.db = db;
-		
+		addWindowListener(new RootFrameListener());
+	
+		log.addHandler(LogUtil.getFileHandler());	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(500, 500);
 		setLocationRelativeTo(null);
+		
+		//setLocale(settings.getParam("locale.lang"));
+		setLocale(new Locale("RU"));
+		
+		//create and add MainMenu
+		menu = new MenuBar();
+		setJMenuBar(menu);
 		
 		//create tab - view categories
 		CategoryView cw = new CategoryView(this);
@@ -44,7 +121,35 @@ public class RootFrame extends JFrame implements IUserUI {
 		add(tabs, BorderLayout.CENTER);
 		
 		//localize UI
-		localizeUI(new Locale("RU"), tabs);
+		localizeUI(getLocale(), tabs);
+		
+	}
+	
+	/**
+	 * Returns available languages are placed in ./lang/ directory
+	 * @return String[] languages
+	 * @author drunia
+	 */
+	private String[] getAvailableLanguages() {
+		String[] langs = null;
+		try {
+			FilenameFilter filter = new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return (name.startsWith("lang_"));
+				}
+			};
+			File langDir = new File("./lang");
+			langs = new String[langDir.list(filter).length];
+			int i = 0;
+			for (String lang : langDir.list(filter)) {
+				langs[i] = lang.replaceFirst("lang_", "");
+				i++;
+			}
+		} catch (Exception e) {
+			log.warning("Error get available languages: " + e.toString());
+			System.exit(1);
+		}
+		return langs;
 	}
 	
 	/**
@@ -90,6 +195,7 @@ public class RootFrame extends JFrame implements IUserUI {
 	}
 	
 	public void localize(Properties langRes) {
+		menu.localize();
 		setTitle(langRes.getProperty("ROOT_TITLE"));
 		tabs.setTitleAt(0, langRes.getProperty("CAT_VIEW_TITTLE"));
 	}
