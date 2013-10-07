@@ -40,8 +40,10 @@ public class RootFrame extends JFrame implements IUserUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JMenuItem item = (JMenuItem) e.getSource();
+				Locale l = item.getLocale();
+				settings.setParam("locale.lang", l.getLanguage());
 				//call localizeUI() for localize UI by selected language
-				localizeUI(item.getLocale(), tabs);
+				localizeUI(l, tabs);
 			}
 		}
 		
@@ -103,8 +105,8 @@ public class RootFrame extends JFrame implements IUserUI {
 		setSize(500, 500);
 		setLocationRelativeTo(null);
 		
-		//setLocale(settings.getParam("locale.lang"));
-		setLocale(new Locale("RU"));
+		//set locale from settings file
+		setLocale(new Locale(settings.getParam("locale.lang")));
 		
 		//create and add MainMenu
 		menu = new MenuBar();
