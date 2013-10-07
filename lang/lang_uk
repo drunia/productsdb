@@ -1,0 +1,10 @@
+﻿#Main window
+ROOT_TITLE=Головне віконце
+ROOT_MENU_SETTINGS=Налагодження
+ROOT_MENU_LANGS=Мова
+
+#Category view
+CAT_VIEW_TITTLE=Категорії товарів
+CAT_ADD_BTN=Додати
+CAT_DEL_BTN=Видалити
+CAT_UPD_BTN=Поновити

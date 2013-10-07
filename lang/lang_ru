@@ -1,0 +1,10 @@
+﻿#Main window
+ROOT_TITLE=главное окно
+ROOT_MENU_SETTINGS=Настройки
+ROOT_MENU_LANGS=Язык
+
+#Category view
+CAT_VIEW_TITTLE=Категории товаров
+CAT_ADD_BTN=Добавить
+CAT_DEL_BTN=Удалить
+CAT_UPD_BTN=Обновить
