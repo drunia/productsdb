@@ -44,7 +44,7 @@ public class Settings {
 				try {
 					is = new FileInputStream(langPath);
 				} catch (FileNotFoundException e) {
-					//if current language not exits chose default EN 
+					//if current language not exist chose default EN 
 					log.warning("For locale " + locale.getLanguage() +
 						" not find language, try default EN.");
 					langPath = "./lang/lang_en";
