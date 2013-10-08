@@ -14,7 +14,7 @@ import java.awt.event.*;
 import java.util.*;
 
 public class CategoryView extends JPanel implements 
-	CategoryController.ISqlResultListener, IUserUI {
+	Controller.ISqlResultListener, IUserUI {
 	
 	private Logger log = Logger.getAnonymousLogger();
 	private RootFrame prodsdb;

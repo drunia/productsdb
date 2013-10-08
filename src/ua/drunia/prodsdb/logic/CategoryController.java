@@ -19,7 +19,9 @@ public class CategoryController extends Controller {
 	private static Logger log = Logger.getAnonymousLogger();
 	
 	/**
-	 * Contructor controller with db and ui
+	 * Controller constructor
+	 * @param db initialized database
+	 * @param ui reference to owner UI 
 	 * @author drunia
 	 */
 	public CategoryController(Database db, IUserUI ui) {
@@ -38,7 +40,6 @@ public class CategoryController extends Controller {
 	 */
 	public boolean addCategory(int parentId, String name, String desc) {
 		if (!db.beginTransaction()) return false;
-
 		String sql = "INSERT INTO categories (cat_parent_id, name, description) " +
 			" VALUES ('" + parentId + "', '" + name + "', '" + desc + "');";
 		boolean res = (db.executeUpdate(sql) > 0);
@@ -132,11 +133,9 @@ public class CategoryController extends Controller {
 	 */
 	public void getCategories(int callerId) {
 		if (!db.beginTransaction()) return;
-
 		String sql = "SELECT cat_id, cat_parent_id, name, description FROM categories;";
 		ResultSet res = db.executeQuery(sql);
-		if (!(sqlListener == null))
-			sqlListener.sqlQueryReady(res, callerId);
+		if (sqlListener != null) sqlListener.sqlQueryReady(res, callerId);
 		db.commit();
 	}
 	
@@ -149,7 +148,6 @@ public class CategoryController extends Controller {
 	 */
 	public boolean editCategory(int cat_id, int newParentId, String newName, String newDesc) {
 		if (cat_id == 0 || !db.beginTransaction()) return false;
-		
 		String sql = "UPDATE categories SET cat_parent_id = '" + newParentId + "', " +
 			"name = '" + newName + "', description = '" + newDesc + "' " +
 			"WHERE cat_id = '" + cat_id + "';";
