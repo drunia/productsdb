@@ -5,6 +5,16 @@ ROOT_MENU_LANGS=Язык
 
 #Category view
 CAT_VIEW_TITTLE=Категории товаров
+CAT_TREE_ROOT=Все категории
 CAT_ADD_BTN=Добавить
 CAT_DEL_BTN=Удалить
 CAT_UPD_BTN=Обновить
+CAT_ADD_DIALOG_TITTLE=Добавить/Изменить категорию
+
+#Clients view
+CLI_VIEW_TITTLE=Покупатели
+CLI_ADD_BTN=Добавить
+CLI_DEL_BTN=Удалить
+CLI_EDIT_BTN=Редактировать
+CLI_UPD_BTN=Обновить
+CLI_ADD_DIALOG_TITTLE=Добавить/Изменить покупателя

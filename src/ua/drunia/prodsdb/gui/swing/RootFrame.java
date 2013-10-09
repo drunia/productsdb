@@ -202,7 +202,10 @@ public class RootFrame extends JFrame implements IUserUI {
 	public void localize(Properties langRes) {
 		menu.localize();
 		setTitle(langRes.getProperty("ROOT_TITLE"));
+		//Category view
 		tabs.setTitleAt(0, langRes.getProperty("CAT_VIEW_TITTLE"));
+		//Clients view
+		tabs.setTitleAt(1, langRes.getProperty("CLI_VIEW_TITTLE"));
 	}
 
 }

@@ -26,6 +26,7 @@ public class CategoryView extends JPanel implements
 	private JTextArea catInfo;
 	private DefaultMutableTreeNode rootNode;
 	private ArrayList<Category> cats;
+	private Category root;
 	
 	//////////////////////////////////////////////////////////////////////////////////////
 	
@@ -204,9 +205,10 @@ public class CategoryView extends JPanel implements
 		Dimension minSize = new Dimension(200, 200);
 		
 		rootNode = new DefaultMutableTreeNode();
-		Category root = new Category();
-		root.cat_id = 0; root.parent_id = 0; root.name = "Товары";
+		root = new Category();
+		root.cat_id = 0; root.parent_id = 0;
 		rootNode.setUserObject(root);
+		
 		tree = new JTree(rootNode);
 		tree.setMinimumSize(minSize);
 		tree.getSelectionModel().setSelectionMode(
@@ -348,6 +350,10 @@ public class CategoryView extends JPanel implements
 	 * @author drunia
 	 */
 	public void localize(Properties langRes) {
+		//tree
+		root.name = langRes.getProperty("CAT_TREE_ROOT");
+		tree.updateUI();
+		//buttons
 		addCatBtn.setText(langRes.getProperty("CAT_ADD_BTN"));
 		delCatBtn.setText(langRes.getProperty("CAT_DEL_BTN"));
 		updCatBtn.setText(langRes.getProperty("CAT_UPD_BTN"));

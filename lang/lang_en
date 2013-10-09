@@ -5,6 +5,16 @@ ROOT_MENU_LANGS=Language
 
 #Category view
 CAT_VIEW_TITTLE=Products category
-CAT_ADD_BTN=Add new
+CAT_TREE_ROOT=All categories
+CAT_ADD_BTN=Add
 CAT_DEL_BTN=Delete
 CAT_UPD_BTN=Update
+CAT_ADD_DIALOG_TITTLE=Add/Edit category
+
+#Clients view
+CLI_VIEW_TITTLE=Clients
+CLI_ADD_BTN=Add
+CLI_DEL_BTN=Delete
+CLI_EDIT_BTN=Edit
+CLI_UPD_BTN=Update
+CLI_ADD_DIALOG_TITTLE=Add/Edit client

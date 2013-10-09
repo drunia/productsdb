@@ -182,7 +182,7 @@ public class Database {
 	 */
 	public ResultSet executeQuery(String preparedSql, Object[] parameters) {
 		ResultSet rs = null;
-		try {;
+		try {
 			PreparedStatement pst = c.prepareStatement(preparedSql);
 			for (int i = 0; i < parameters.length; i++) 
 				pst.setObject(i + 1, parameters[i]);

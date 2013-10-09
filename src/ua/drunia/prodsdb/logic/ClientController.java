@@ -10,6 +10,7 @@ import ua.drunia.prodsdb.gui.IUserUI;
 import ua.drunia.prodsdb.util.LogUtil;
  
 import java.util.logging.*;
+import java.sql.*;
  
 public class ClientController extends Controller {
 	private Logger log = Logger.getAnonymousLogger();
@@ -30,7 +31,7 @@ public class ClientController extends Controller {
 	 * @author drunia
 	 */
 	public void getClients(int callerId) {
-		if (!db.beginTransaction()) return false;
+		if (!db.beginTransaction()) return;
 		String sql = "SELECT * FROM clients";
 		ResultSet res = db.executeQuery(sql);
 		if (sqlListener != null) sqlListener.sqlQueryReady(res, callerId);
@@ -68,7 +69,14 @@ public class ClientController extends Controller {
 		if (!db.beginTransaction()) return false;
 		//check link from table 'orders'
 		String sql = "SELECT COUNT(*) FROM orders WHERE client_id = '" + id + "';";
-		boolean res = (db.executeQuery(sql).getInt(1) > 0);
+		boolean res = false;
+		try {
+			res = (db.executeQuery(sql).getInt(1) > 0);
+		} catch (SQLException e) {
+			db.rollback();
+			ui.error(e);
+			return false;
+		}
 		if (res) {
 			db.rollback();
 			ui.error(new Exception("Delete failed, links found in tables orders -> clients"));
