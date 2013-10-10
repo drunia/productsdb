@@ -11,6 +11,7 @@ import java.util.*;
 import java.sql.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
@@ -28,6 +29,7 @@ public class ClientView extends JPanel implements
 	private JLabel infoLabel;
 	private RootFrame prodsdb;
 	private ClientController cc;
+	private String cliName, cliTel, cliAddress, cliNotes;
 	
 	/**
 	 * Constructor of ClientView
@@ -38,18 +40,23 @@ public class ClientView extends JPanel implements
 		this.prodsdb = prodsdb;
 		setLayout(new BorderLayout());
 		
+		//controller
 		cc = new ClientController(prodsdb.getDatabase(), this);
 		cc.setSqlResultListener(this);
 		
 		//creating controlPanel
 		controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		//add
 		addCliBtn = new JButton(); 
 		addCliBtn.addActionListener(new AddCliBtnListener());
-		editCliBtn = new JButton("2");
-		
-		delCliBtn = new JButton("3");
-		
-		updCliBtn = new JButton("4");
+		//edit
+		editCliBtn = new JButton();
+		editCliBtn.addActionListener(new EditCliBtnListener());
+		//delete
+		delCliBtn = new JButton();
+		delCliBtn.addActionListener(new DelCliBtnListener());
+		//update
+		updCliBtn = new JButton();
 		updCliBtn.addActionListener(new UpdCliBtnListener());
 		
 		//add buttons to controlPanel
@@ -63,8 +70,16 @@ public class ClientView extends JPanel implements
 		
 		//table 
 		cliTable = new JTable();
+		cliTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		cliTable.getSelectionModel().addListSelectionListener(new CliTableSelectionListener());
 		add(new JScrollPane(cliTable), BorderLayout.CENTER);
 		
+		//info label
+		infoLabel = new JLabel();
+		add(infoLabel, BorderLayout.PAGE_END);
+		
+		//selecting data
+		updateUI(this);
 	}
 	
 
@@ -100,6 +115,27 @@ public class ClientView extends JPanel implements
 	}
 	
 	/**
+	 * Publish info on infoLabel (html)
+	 * @param rowIndex index of selected row
+	 * @author drunia
+	 */
+	private void publishInfo(int rowIndex) {
+		if (rowIndex == -1) {
+			infoLabel.setVisible(false);
+			return;
+		} else infoLabel.setVisible(true);
+		CliTableModel model = (CliTableModel) cliTable.getModel();
+		//build html string
+		String html = "<html><table><tr><td>" + cliName +
+			":</td><td>" + model.rows.get(rowIndex)[1] + "</td></tr>" +
+			"<tr><td>" + cliTel + ":</td><td>" + model.rows.get(rowIndex)[2] +
+			"</td></tr><tr><td>" + cliAddress + ":</td><td>" +
+			model.rows.get(rowIndex)[3] + "</td></tr><tr><td>" + cliNotes + ":</td>" +
+			"<td>" + model.rows.get(rowIndex)[4] + "</td></tr></table></html>";
+		infoLabel.setText(html);
+	}
+	
+	/**
 	 * Query ready event handler
 	 * @param rs prepared ResultSet
 	 * @param callerId who requested data from database
@@ -107,9 +143,8 @@ public class ClientView extends JPanel implements
 	 */
 	public boolean sqlQueryReady(ResultSet rs, int callerId) {
 		if (callerId == 1) {
+			cliTable.setColumnModel(new CliTableColumnModel());
 			cliTable.setModel(new CliTableModel(rs));
-			//cliTable.updateUI();
-			System.out.println("sqlQueryReady fired");
 		}
 		
 		//default return statement if event not handled
@@ -164,16 +199,26 @@ public class ClientView extends JPanel implements
 		editCliBtn.setText(langRes.getProperty("CLI_EDIT_BTN"));
 		delCliBtn.setText(langRes.getProperty("CLI_DEL_BTN"));
 		updCliBtn.setText(langRes.getProperty("CLI_UPD_BTN"));
+		//infoLabel
+		cliName = langRes.getProperty("CLI_INFO_NAME");
+		cliTel = langRes.getProperty("CLI_INFO_TEL");
+		cliAddress = langRes.getProperty("CLI_INFO_ADDRESS");
+		cliNotes = langRes.getProperty("CLI_INFO_NOTES");
+		//table columns (use from infoLabel) 
+		CliTableColumnModel colModel = (CliTableColumnModel) cliTable.getColumnModel();
+		//if (colModel.getColumnCount() == 3) colModel.localize();
+
 	}
 	
-	/////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////Hepler inner classes//////////////////////////////////
+	
 	/**
 	 * Table model class for clients
 	 * @author drunia
 	 */
 	private class CliTableModel extends AbstractTableModel {
-		private String[] columns = {"Имя", "Тел", "Адрес"};
-		private ArrayList<String[]> rows = new ArrayList<String[]>();
+		private String[] columns = {"-Name-", "-Tel-", "-Addr-"};
+		public ArrayList<String[]> rows = new ArrayList<String[]>();
 		
 		/**
 		 * Default constrictor
@@ -225,7 +270,66 @@ public class ClientView extends JPanel implements
 			return false;
 		}
 		
+		/**
+		 * Clear data in table
+		 * @author drunia
+		 */
+		public void clear() {
+			rows.clear();
+		}
+		
 	}
+	
 	////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Table column class for clients 
+	 * @author drunia 
+	 */
+	private class CliTableColumnModel extends DefaultTableColumnModel {
+		private final int MAX_ROWS = 3;
+		/**
+		 * Set size limit to column [telefon]
+		 * @author drunia
+		 */
+		@Override
+		public TableColumn getColumn(int index) {
+			final int TEL_COLUMN = 1; 
+			TableColumn tc = super.getColumn(index);
+			if (index == TEL_COLUMN) {
+				tc.setMinWidth(120);
+				tc.setMaxWidth(150);
+			}
+			//localize columns after adds last from model
+			if (index == 3 ) localize();
+			return tc;
+		}
+		
+		//localize columns
+		public void localize() {
+		System.out.println("columns localize");
+			getColumn(0).setHeaderValue(cliName);
+			getColumn(1).setHeaderValue(cliTel);
+			getColumn(2).setHeaderValue(cliAddress);
+		}
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Selection events listener clas for cliTable
+	 * @author drunia
+	 */
+	private class CliTableSelectionListener implements  ListSelectionListener {
+		//selection event
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if (e.getValueIsAdjusting()) return;
+			int selectedRow = cliTable.getSelectedRow();
+			publishInfo(selectedRow);
+
+		}
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////
 } 
