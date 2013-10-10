@@ -185,7 +185,7 @@ public class RootFrame extends JFrame implements IUserUI {
 	
 	//called when model has want show error
 	public void error(Exception e) {
-		JOptionPane.showMessageDialog(null, "Ошибка выполнения:\n" + e, "Ошибка", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null,  e, "Ошибка", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	//called when model has want something confirm
@@ -196,7 +196,7 @@ public class RootFrame extends JFrame implements IUserUI {
 	//called when model has want show message
 	public void message(String msg){
 		JOptionPane.showMessageDialog(null,
-			"Сообщение от модели/контроллера:\n" + msg, "Простое сообщение", JOptionPane.INFORMATION_MESSAGE);
+			msg, "Простое сообщение", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public void localize(Properties langRes) {

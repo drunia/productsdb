@@ -11,9 +11,11 @@ import ua.drunia.prodsdb.util.LogUtil;
  
 import java.util.logging.*;
 import java.sql.*;
+import java.util.Properties;
  
 public class ClientController extends Controller {
 	private Logger log = Logger.getAnonymousLogger();
+	private String askDelete, deleteWarn;
 	
 	/**
 	 * Controller constructor
@@ -24,6 +26,16 @@ public class ClientController extends Controller {
 	public ClientController(Database db, IUserUI ui) {
 		super(db, ui);
 		log.addHandler(LogUtil.getFileHandler());
+	}
+	
+	/**
+	 * Localize strings for UI
+	 * @param langRes language properties from Settings
+	 * @author drunia
+	 */
+	public void localize(Properties langRes) {
+		askDelete = langRes.getProperty("CLI_ASK_DELETE");
+		deleteWarn = langRes.getProperty("CLI_DELTE_WARN");
 	}
 	
 	/**
@@ -65,7 +77,7 @@ public class ClientController extends Controller {
 	 * @author drunia
 	 */
 	public boolean removeClient(int id) {
-		if (!ui.confirm("¬ы точно хотите удалить выбраного клиента?")) return false;
+		if (!ui.confirm(askDelete)) return false;
 		if (!db.beginTransaction()) return false;
 		//check link from table 'orders'
 		String sql = "SELECT COUNT(*) FROM orders WHERE client_id = '" + id + "';";
@@ -79,7 +91,7 @@ public class ClientController extends Controller {
 		}
 		if (res) {
 			db.rollback();
-			ui.error(new Exception("Delete failed, links found in tables orders -> clients"));
+			ui.error(new Exception(deleteWarn));
 			return false;
 		}
 		//if links not found

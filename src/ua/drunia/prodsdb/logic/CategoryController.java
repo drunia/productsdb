@@ -13,10 +13,12 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 
  
 public class CategoryController extends Controller {
 	private static Logger log = Logger.getAnonymousLogger();
+	private String askDelete, deleteWarn, deleteSubCatWarn;
 	
 	/**
 	 * Controller constructor
@@ -29,6 +31,17 @@ public class CategoryController extends Controller {
 		log.addHandler(LogUtil.getFileHandler());
 	}
  
+ 	/**
+	 * Localize strings for UI
+	 * @param langRes language properties from Settings
+	 * @author drunia
+	 */
+	public void localize(Properties langRes) {
+		askDelete = langRes.getProperty("CAT_ASK_DELETE");
+		deleteWarn = langRes.getProperty("CAT_DELETE_WARN");
+		deleteSubCatWarn = langRes.getProperty("CAT_DELETE_SUB_WARN");
+	}
+	
 	/**
 	 * Method add new category to db
 	 * @param id - category id
@@ -51,29 +64,6 @@ public class CategoryController extends Controller {
 	}
 	
 	/**
-	 * Service method for removeCategory()
-	 * Recursive delete categories in tree
-	 * @param cat_id root category
-	 * @return boolean [true - delete OK | false delete FAIL]
-	 * @author drunia
-     */	 
-	private boolean removeSubCategories(int cat_id) {
-		//ATENTION beginTransaction() must be already opened.
-		String sql = "SELECT cat_id FROM categories WHERE cat_parent_id = " + cat_id;
-		ResultSet rs = db.executeQuery(sql);
-		boolean res = false;
-		try {
-			while (rs.next()) {
-				int rm_id = rs.getInt(1);
-				res = removeSubCategories(rm_id);
-				sql = "DELETE FROM categories WHERE cat_id = '" + rm_id + "';";
-				res = (db.executeUpdate(sql) > 0);
-			}
-		} catch (SQLException e) { log.warning(e.toString()); }
-		return res;
-	}
-	
-	/**
 	 * Method remove category from db
 	 * Before delete category method check link data from table
 	 * products to table categories. If not linked - delete category
@@ -81,7 +71,7 @@ public class CategoryController extends Controller {
 	 * @author drunia
 	 */
 	public boolean removeCategory(int cat_id) {
-		if (!ui.confirm("Вы точно хотите удалить выбраную категорию")) return false;
+		if (!ui.confirm(askDelete)) return false;
 		if (cat_id == 0 || !db.beginTransaction()) return false;
 		
 		//check products on link to this category
@@ -89,26 +79,20 @@ public class CategoryController extends Controller {
 		try {	
 			if (db.executeQuery(sql).getInt(1) > 0) {
 				db.rollback();
-				ui.message("You can not delete this category, she linked with products");
+				ui.message(deleteWarn);
 				return false;
 			}
 		} catch (SQLException e) {
-			log.log(Level.WARNING, "Error in check products on link to this category", e);
+			log.warning("Error in check products on link to this category");
 		}
 		
 		//check children categories
-		boolean deleteChild = true;
 		try {	
-			deleteChild = true;
 			sql = "SELECT COUNT(*) FROM categories WHERE cat_parent_id = '" + cat_id + "';";
 			if (db.executeQuery(sql).getInt(1) > 0) {
-				boolean uiconfirm = ui.confirm("Удалить с подкатегориями ?");
-				if (uiconfirm) {
-					deleteChild = removeSubCategories(cat_id);
-				} else {
-					db.rollback();
-					return false;
-				}
+				db.rollback();
+				ui.message(deleteSubCatWarn);
+				return false;
 			}
 		} catch (SQLException e) { 
 			db.rollback();
@@ -122,8 +106,8 @@ public class CategoryController extends Controller {
 		db.commit();
 		
 		//request updateUI event
-		if (res && deleteChild) ui.updateUI(this);	
-		return (res && deleteChild);
+		if (res) ui.updateUI(this);	
+		return res;
 	}
 	
 	/**

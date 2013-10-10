@@ -11,6 +11,11 @@ CAT_DEL_BTN=Delete
 CAT_UPD_BTN=Update
 CAT_ADD_DIALOG_TITTLE=Add/Edit category
 
+#Category controller
+CAT_ASK_DELETE=Delete selected category?
+CAT_DELETE_WARN=Can'ot delete category, she linked with products
+CAT_DELETE_SUB_WARN=Delete failed, delete first subcategories
+
 #Clients view
 CLI_VIEW_TITTLE=Clients
 CLI_ADD_BTN=Add
@@ -22,3 +27,7 @@ CLI_INFO_NAME=Name
 CLI_INFO_TEL=Telephone
 CLI_INFO_ADDRESS=Address
 CLI_INFO_NOTES=Note
+
+#Client controller
+CLI_ASK_DELETE=Delete selected client?
+CLI_DELETE_WARN=Can'ot delete client, him linked with orders

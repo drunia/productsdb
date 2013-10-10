@@ -206,7 +206,9 @@ public class ClientView extends JPanel implements
 		cliNotes = langRes.getProperty("CLI_INFO_NOTES");
 		//table columns (use from infoLabel) 
 		CliTableColumnModel colModel = (CliTableColumnModel) cliTable.getColumnModel();
-		//if (colModel.getColumnCount() == 3) colModel.localize();
+		if (colModel.getColumnCount() == 3) colModel.localize();
+		//localize controller 
+		cc.localize(langRes);
 
 	}
 	
@@ -217,7 +219,8 @@ public class ClientView extends JPanel implements
 	 * @author drunia
 	 */
 	private class CliTableModel extends AbstractTableModel {
-		private String[] columns = {"-Name-", "-Tel-", "-Addr-"};
+		final static int ROWS_COUNT = 3;
+		private String[] columns = new String[ROWS_COUNT];
 		public ArrayList<String[]> rows = new ArrayList<String[]>();
 		
 		/**
@@ -241,7 +244,10 @@ public class ClientView extends JPanel implements
 			} catch (SQLException e) {
 				log.warning(e.toString());
 			}
-		
+			//localize
+			columns[0] = cliName;
+			columns[1] = cliTel;
+			columns[2] = cliAddress;
 		}
 
 		@Override
@@ -300,17 +306,15 @@ public class ClientView extends JPanel implements
 				tc.setMinWidth(120);
 				tc.setMaxWidth(150);
 			}
-			//localize columns after adds last from model
-			if (index == 3 ) localize();
 			return tc;
 		}
 		
 		//localize columns
 		public void localize() {
 		System.out.println("columns localize");
-			getColumn(0).setHeaderValue(cliName);
-			getColumn(1).setHeaderValue(cliTel);
-			getColumn(2).setHeaderValue(cliAddress);
+			tableColumns.get(0).setHeaderValue(cliName);
+			tableColumns.get(1).setHeaderValue(cliTel);
+			tableColumns.get(2).setHeaderValue(cliAddress);
 		}
 	}
 	

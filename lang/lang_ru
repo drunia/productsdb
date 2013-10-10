@@ -11,6 +11,11 @@ CAT_DEL_BTN=Удалить
 CAT_UPD_BTN=Обновить
 CAT_ADD_DIALOG_TITTLE=Добавить/Изменить категорию
 
+#Category controller
+CAT_ASK_DELETE=Удалить выбранную категорию?
+CAT_DELETE_WARN=Невозможно удалить категорию, на нее ссылаются некоторые продукты
+CAT_DELETE_SUB_WARN=Удаление не возможно, удалите сначала подкатегории
+
 #Clients view
 CLI_VIEW_TITTLE=Покупатели
 CLI_ADD_BTN=Добавить
@@ -22,4 +27,7 @@ CLI_INFO_NAME=Имя
 CLI_INFO_TEL=Телефон
 CLI_INFO_ADDRESS=Адресс
 CLI_INFO_NOTES=Заметка
-CLI_TABL_COL_NAME=Имя
+
+#Client controller
+CLI_ASK_DELETE=Удалить выбраного покупателя?
+CLI_DELETE_WARN=Невозможно удалить покупателя, он числится в заказах

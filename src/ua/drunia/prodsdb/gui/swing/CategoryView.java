@@ -357,5 +357,7 @@ public class CategoryView extends JPanel implements
 		addCatBtn.setText(langRes.getProperty("CAT_ADD_BTN"));
 		delCatBtn.setText(langRes.getProperty("CAT_DEL_BTN"));
 		updCatBtn.setText(langRes.getProperty("CAT_UPD_BTN"));
+		//localize controller 
+		cc.localize(langRes);
 	}
 }
