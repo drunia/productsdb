@@ -216,7 +216,7 @@ public class ClientView extends JPanel implements
 		
 		@Override
 		public Object getValueAt(int row, int col) {
-			return rows.get(row)[col];
+			return rows.get(row)[col + 1];
 		}
 		
 		//Our table is not editable
