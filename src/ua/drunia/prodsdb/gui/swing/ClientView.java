@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 import javax.swing.*;
+import javax.swing.text.*;
 import javax.swing.table.*;
 
 import ua.drunia.prodsdb.logic.*;
@@ -21,6 +22,12 @@ import ua.drunia.prodsdb.util.*;
 
 public class ClientView extends JPanel implements
 	Controller.ISqlResultListener, IUserUI {
+	 
+	final static int ID_COLUMN   = 0;
+	final static int NAME_COLUMN = 1;
+	final static int TEL_COLUMN  = 2;
+	final static int ADDR_COLUMN = 3;
+	final static int NOTE_COLUMN = 4;
 	
 	private static Logger log = Logger.getAnonymousLogger();
 	private JPanel controlPanel, infoPanel;
@@ -88,7 +95,7 @@ public class ClientView extends JPanel implements
 	private class AddCliBtnListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			cc.addClient("Andrunin Ditry", "0953252604", "Bogodukhov city", "good client");
+			new AddEditClientDialog(prodsdb, false);
 		}
 	}
 	
@@ -96,6 +103,8 @@ public class ClientView extends JPanel implements
 	private class EditCliBtnListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (cliTable.getSelectedRow() == -1) return;
+			new AddEditClientDialog(prodsdb, true);
 		}
 	}
 	
@@ -103,6 +112,12 @@ public class ClientView extends JPanel implements
 	private class DelCliBtnListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			final int ID_COLUMN = 0;
+			int selectedRow = cliTable.getSelectedRow();
+			if (selectedRow == -1) return;
+			CliTableModel tm = (CliTableModel) cliTable.getModel();
+			int id = Integer.parseInt(tm.rows.get(selectedRow)[ID_COLUMN]);
+			cc.removeClient(id);
 		}
 	}
 	
@@ -206,7 +221,7 @@ public class ClientView extends JPanel implements
 		cliNotes = langRes.getProperty("CLI_INFO_NOTES");
 		//table columns (use from infoLabel) 
 		CliTableColumnModel colModel = (CliTableColumnModel) cliTable.getColumnModel();
-		if (colModel.getColumnCount() == 3) colModel.localize();
+		if (colModel.getColumnCount() == colModel.MAX_COLUMNS) colModel.localize();
 		//localize controller 
 		cc.localize(langRes);
 
@@ -219,8 +234,8 @@ public class ClientView extends JPanel implements
 	 * @author drunia
 	 */
 	private class CliTableModel extends AbstractTableModel {
-		final static int ROWS_COUNT = 3;
-		private String[] columns = new String[ROWS_COUNT];
+		final static int MAX_COLUMNS = 3;
+		private String[] columns = new String[MAX_COLUMNS];
 		public ArrayList<String[]> rows = new ArrayList<String[]>();
 		
 		/**
@@ -234,11 +249,11 @@ public class ClientView extends JPanel implements
 			try {
 				while (rs.next()) {
 					String[] row = new String[5]; 
-					row[0] = rs.getString(1);
-					row[1] = rs.getString(2);
-					row[2] = rs.getString(3);
-					row[3] = rs.getString(4);
-					row[4] = rs.getString(5);
+					row[ID_COLUMN]   = rs.getString(1);
+					row[NAME_COLUMN] = rs.getString(2);
+					row[TEL_COLUMN]  = rs.getString(3);
+					row[ADDR_COLUMN] = rs.getString(4);
+					row[NOTE_COLUMN] = rs.getString(5);
 					rows.add(row);
 				}
 			} catch (SQLException e) {
@@ -293,17 +308,17 @@ public class ClientView extends JPanel implements
 	 * @author drunia 
 	 */
 	private class CliTableColumnModel extends DefaultTableColumnModel {
-		private final int MAX_ROWS = 3;
+		public final int MAX_COLUMNS = 3;
 		/**
 		 * Set size limit to column [telefon]
 		 * @author drunia
 		 */
 		@Override
 		public TableColumn getColumn(int index) {
-			final int TEL_COLUMN = 1; 
+			final int TEL_COL = 1; 
 			TableColumn tc = super.getColumn(index);
-			if (index == TEL_COLUMN) {
-				tc.setMinWidth(120);
+			if (index == TEL_COL) {
+				tc.setMinWidth(130);
 				tc.setMaxWidth(150);
 			}
 			return tc;
@@ -311,7 +326,6 @@ public class ClientView extends JPanel implements
 		
 		//localize columns
 		public void localize() {
-		System.out.println("columns localize");
 			tableColumns.get(0).setHeaderValue(cliName);
 			tableColumns.get(1).setHeaderValue(cliTel);
 			tableColumns.get(2).setHeaderValue(cliAddress);
@@ -336,4 +350,159 @@ public class ClientView extends JPanel implements
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Dialog for add or edit client
+	 * @author drunia
+	 */
+	private class AddEditClientDialog extends JDialog {
+		private JPanel inputPanel, buttonsPanel;
+		private JLabel nameLb, telLb, addrLb, noteLb;
+		private JTextField nameTf, telTf, addrTf;
+		private JTextArea noteTa;
+		private JButton okBtn, cancelBtn;
+		private boolean checkOK;
+		
+		/**
+		 * Default constructor
+		 * @author drunia
+		 */
+		public AddEditClientDialog(JFrame owner, boolean isEdit) {
+			super();
+			setModal(true);
+			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			setSize(600, 250);
+			setLocationRelativeTo(owner);
+			
+			//labels
+			nameLb = new JLabel("Name:");
+			telLb = new JLabel("Telephone:");
+			addrLb = new JLabel("Address:");
+			noteLb = new JLabel("Note:");
+			
+			//inputs
+			InputChecker ichecker = new InputChecker();
+			nameTf = new JTextField(); nameTf.addFocusListener(ichecker);
+			telTf = new JTextField(); telTf.addFocusListener(ichecker);
+			addrTf = new JTextField(); addrTf.addFocusListener(ichecker);
+			
+			noteTa = new JTextArea();
+			noteTa.setLineWrap(true);
+			JScrollPane noteScroll = new JScrollPane(noteTa);
+			noteScroll.setPreferredSize(new Dimension(0, 50));
+			noteTa.addFocusListener(ichecker);
+			
+			//buttons
+			okBtn = new JButton("OK");
+			cancelBtn = new JButton("Cancel");
+			
+			//panels
+			GridBagLayout gridbag = new GridBagLayout();
+			GridBagConstraints c = new GridBagConstraints();
+			c.fill = GridBagConstraints.BOTH;
+			c.ipady = 4; c.insets = new Insets(2, 3, 3, 2);
+			inputPanel = new JPanel(gridbag);
+			
+			//1 row
+			c.weightx = 0.0; c.gridx = 0; c.gridy = 0;
+			inputPanel.add(nameLb, c);
+			c.weightx = 0.2; c.gridx = 1; c.gridy = 0;
+			inputPanel.add(nameTf, c);
+
+			c.weightx = 0.0; c.gridx = 2; c.ipadx = 10;
+			inputPanel.add(telLb, c);
+			c.weightx = 0.1; c.gridx = 3; 
+			inputPanel.add(telTf, c);
+			
+			//2 row
+			c.weightx = 0.0; c.gridx = 0; c.gridy = 1;
+			inputPanel.add(addrLb, c);		
+			c.weightx = 0.1; c.gridx = 1; c.gridwidth = 3;
+			inputPanel.add(addrTf, c);
+			
+			//3 row
+			c.weightx = 0.0; c.gridx = 0; c.gridy = 2;
+			inputPanel.add(noteLb, c); 
+			c.weightx = 0.1; c.gridx = 1; c.gridwidth = 3;
+			inputPanel.add(noteScroll, c);
+			
+			buttonsPanel = new JPanel();
+			buttonsPanel.add(okBtn); buttonsPanel.add(cancelBtn);
+			
+			//add panels to dialog
+			add(inputPanel, BorderLayout.CENTER);
+			add(buttonsPanel, BorderLayout.PAGE_END);
+			
+			//localize
+			localize(null);
+			
+			//show
+			if (isEdit) fillForEdit();
+			setVisible(true);
+		}
+		
+		/**
+		 * Helper class for check inputted data
+		 * @author drunia
+		 */
+		private class InputChecker extends FocusAdapter {
+			final Color errColor = new Color(255, 209, 209);
+			final Color okColor = new Color(236, 255, 209);
+			
+			/**
+			 * Called when focus is lost
+			 * @author drunia
+			 */
+			@Override
+			public void focusLost(FocusEvent e) {
+				JTextComponent c = (JTextComponent) e.getSource();
+				//name input
+				if (c == nameTf) {
+					if (c.getText().trim().equals("")) {
+						c.setBackground(errColor);
+						c.requestFocusInWindow();
+					} else c.setBackground(okColor);
+				} 
+				//tel input
+				if (c == telTf) {
+					if (!c.getText().matches("[0-9]{11,}+")) {
+						c.setBackground(errColor);
+						c.requestFocusInWindow();
+					} else c.setBackground(okColor);
+				}
+			}
+		}
+		
+		/**
+		 * Initialize inputs for edit
+		 * @author drunia
+		 */
+		 private void fillForEdit() {
+			int selectedRow = cliTable.getSelectedRow();
+			CliTableModel tm = (CliTableModel) cliTable.getModel();
+			
+			//get data from table row (table model)
+			int id = Integer.parseInt(tm.rows.get(selectedRow)[ID_COLUMN]);
+			String name = tm.rows.get(selectedRow)[NAME_COLUMN];
+			String tel  = tm.rows.get(selectedRow)[TEL_COLUMN];
+			String addr = tm.rows.get(selectedRow)[ADDR_COLUMN];
+			String note = tm.rows.get(selectedRow)[NOTE_COLUMN];
+			
+			//set to UI
+			nameTf.setText(name);
+			telTf.setText(tel);
+			addrTf.setText(addr);
+			noteTa.setText(note);
+		 }
+		
+		/**
+		 * Localize this dialog
+		 * @param langRes initialized language properties
+		 * @author drunia
+		 */
+		public void localize(Properties langRes) {
+			if (langRes == null) langRes = Settings.get().getLangResources();
+			setTitle(langRes.getProperty("CLI_ADD_DIALOG_TITTLE"));
+		}
+	}
 } 

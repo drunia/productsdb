@@ -47,8 +47,9 @@ public class CategoryView extends JPanel implements
 		
 		public AddDialog(boolean isEdit) {
 			super(prodsdb, "Добавление категории", true);
+			setModal(true);
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			setSize(400, 300);
+			setSize(600, 250);
 			setLocationRelativeTo(prodsdb);
 			
 			//get selected node for editing or adding new
@@ -75,14 +76,12 @@ public class CategoryView extends JPanel implements
 				}
 			}
 			editPanel.add(catCmbBox);
-			
 			editPanel.add(nameLb);
 			editPanel.add(catNameTf);
 			editPanel.add(descLb);
-			descArea.setBorder(
-				BorderFactory.createEtchedBorder(1));
-			descArea.setPreferredSize(new Dimension(0, 50));
-			add(descArea, BorderLayout.CENTER);
+			JScrollPane scrollDesc = new JScrollPane(descArea);
+			scrollDesc.setPreferredSize(new Dimension(0, 20));
+			add(scrollDesc, BorderLayout.CENTER);
 			add(editPanel, BorderLayout.PAGE_START);
 			
 			//buttons
@@ -285,7 +284,6 @@ public class CategoryView extends JPanel implements
 		tree.updateUI();
 		//expand all tree
 		for (int i = 0; i < tree.getRowCount(); i++) tree.expandRow(i);
-		
 		return true;
 	}
 			

@@ -102,7 +102,7 @@ public class RootFrame extends JFrame implements IUserUI {
 	
 		log.addHandler(LogUtil.getFileHandler());	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(500, 500);
+		setSize(640, 480);
 		setLocationRelativeTo(null);
 		
 		//set locale from settings file
