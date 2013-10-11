@@ -31,8 +31,7 @@ public class Settings {
 	}
 	
 	/**
-	 * Reading bundle with language 
-	 * encoding: utf-8
+	 * Reading bundle with language, encoding: utf-8
 	 * @param locale specific language locale
 	 * @author drunia
 	 */
