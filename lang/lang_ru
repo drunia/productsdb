@@ -2,6 +2,8 @@
 ROOT_TITLE=главное окно
 ROOT_MENU_SETTINGS=Настройки
 ROOT_MENU_LANGS=Язык
+ROOT_BTN_OK=ОК
+ROOT_BTN_CANCEL=Отмена
 
 #Category view
 CAT_VIEW_TITTLE=Категории товаров
@@ -9,7 +11,11 @@ CAT_TREE_ROOT=Все категории
 CAT_ADD_BTN=Добавить
 CAT_DEL_BTN=Удалить
 CAT_UPD_BTN=Обновить
-CAT_ADD_DIALOG_TITTLE=Добавить/Изменить категорию
+CAT_ADD_DIALOG_TITTLE=Добавить категорию
+CAT_EDIT_DIALOG_TITTLE=Изменить категорию
+CAT_PARENT_LB=Родительская категория
+CAT_NAME_LB=Имя категории
+CAT_DESC_LB=Описание категории
 
 #Category controller
 CAT_ASK_DELETE=Удалить выбранную категорию?
@@ -22,7 +28,9 @@ CLI_ADD_BTN=Добавить
 CLI_DEL_BTN=Удалить
 CLI_EDIT_BTN=Редактировать
 CLI_UPD_BTN=Обновить
-CLI_ADD_DIALOG_TITTLE=Добавить/Изменить покупателя
+CLI_ADD_DIALOG_TITTLE=Добавить покупателя
+CLI_EDIT_DIALOG_TITTLE=Редактировать покупателя
+CLI_ADD_ERR_CHKMSG=Не все поля заполнены или заполнены с ошибкой
 CLI_INFO_NAME=Имя
 CLI_INFO_TEL=Телефон
 CLI_INFO_ADDRESS=Адресс

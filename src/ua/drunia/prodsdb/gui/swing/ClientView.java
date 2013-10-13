@@ -23,11 +23,11 @@ import ua.drunia.prodsdb.util.*;
 public class ClientView extends JPanel implements
 	Controller.ISqlResultListener, IUserUI {
 	 
-	final static int ID_COLUMN   = 0;
-	final static int NAME_COLUMN = 1;
-	final static int TEL_COLUMN  = 2;
-	final static int ADDR_COLUMN = 3;
-	final static int NOTE_COLUMN = 4;
+	public final static int ID_COLUMN   = 0;
+	public final static int NAME_COLUMN = 1;
+	public final static int TEL_COLUMN  = 2;
+	public final static int ADDR_COLUMN = 3;
+	public final static int NOTE_COLUMN = 4;
 	
 	private static Logger log = Logger.getAnonymousLogger();
 	private JPanel controlPanel, infoPanel;
@@ -190,7 +190,7 @@ public class ClientView extends JPanel implements
 	 * @author drunia
 	 */
 	public boolean confirm(String msg) {
-		return (JOptionPane.showConfirmDialog(prodsdb, msg, "Подтверждение",
+		return (JOptionPane.showConfirmDialog(prodsdb, msg, "?",
 			JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
 	}
 	
@@ -361,7 +361,9 @@ public class ClientView extends JPanel implements
 		private JTextField nameTf, telTf, addrTf;
 		private JTextArea noteTa;
 		private JButton okBtn, cancelBtn;
-		private boolean checkOK;
+		private boolean checkOk;
+		private boolean isEdit;
+		private String errCheckMsg;
 		
 		/**
 		 * Default constructor
@@ -371,8 +373,9 @@ public class ClientView extends JPanel implements
 			super();
 			setModal(true);
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			setSize(600, 250);
+			setSize(500, 250);
 			setLocationRelativeTo(owner);
+			this.isEdit = isEdit;
 			
 			//labels
 			nameLb = new JLabel("Name:");
@@ -393,8 +396,11 @@ public class ClientView extends JPanel implements
 			noteTa.addFocusListener(ichecker);
 			
 			//buttons
-			okBtn = new JButton("OK");
+			BtnActionListener bal = new BtnActionListener();
+			okBtn = new JButton("OK"); 
+			okBtn.addActionListener(bal);
 			cancelBtn = new JButton("Cancel");
+			cancelBtn.addActionListener(bal);
 			
 			//panels
 			GridBagLayout gridbag = new GridBagLayout();
@@ -426,6 +432,7 @@ public class ClientView extends JPanel implements
 			c.weightx = 0.1; c.gridx = 1; c.gridwidth = 3;
 			inputPanel.add(noteScroll, c);
 			
+			//buttons panel
 			buttonsPanel = new JPanel();
 			buttonsPanel.add(okBtn); buttonsPanel.add(cancelBtn);
 			
@@ -434,11 +441,41 @@ public class ClientView extends JPanel implements
 			add(buttonsPanel, BorderLayout.PAGE_END);
 			
 			//localize
-			localize(null);
-			
+			localize();
+				
 			//show
 			if (isEdit) fillForEdit();
 			setVisible(true);
+		}
+		
+		/** 
+		 * ActionEvent handler for buttons
+		 * @author drunia
+		 */
+		private class BtnActionListener implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton b = (JButton) e.getSource();
+				boolean res = false;
+				//OK button
+				if (b == okBtn) {
+					if (checkOk) {
+						String name = nameTf.getText();
+						String tel  = telTf.getText();
+						String addr = addrTf.getText();
+						String note = noteTa.getText();
+						if (isEdit) {
+							int selRow = cliTable.getSelectedRow();
+							CliTableModel tm = (CliTableModel) cliTable.getModel();
+							int editId = Integer.parseInt(tm.rows.get(selRow)[ID_COLUMN]);
+							res = cc.editClient(editId, name, tel, addr, note);
+						} else res = cc.addClient(name, tel, addr, note);;
+					} else error(new Exception(errCheckMsg));
+				}
+				//Cancel button
+				if (b == cancelBtn) res = true;
+				if (res) dispose();
+			}
 		}
 		
 		/**
@@ -446,8 +483,22 @@ public class ClientView extends JPanel implements
 		 * @author drunia
 		 */
 		private class InputChecker extends FocusAdapter {
-			final Color errColor = new Color(255, 209, 209);
-			final Color okColor = new Color(236, 255, 209);
+			private final Color errColor = new Color(255, 209, 209);
+			private final Color okColor = new Color(236, 255, 209);
+			private boolean name, tel, addr;
+			
+			/**
+			 * Default constructor
+			 * If isEdit = true vars name, tel, addr set to true
+			 * @author drunia
+			 */
+			public InputChecker() {
+				if (isEdit) {
+					name = true;
+					tel  = true;
+					addr = true;
+				}
+			}
 			
 			/**
 			 * Called when focus is lost
@@ -456,22 +507,27 @@ public class ClientView extends JPanel implements
 			@Override
 			public void focusLost(FocusEvent e) {
 				JTextComponent c = (JTextComponent) e.getSource();
-				//name input
-				if (c == nameTf) {
-					if (c.getText().trim().equals("")) {
-						c.setBackground(errColor);
-						c.requestFocusInWindow();
-					} else c.setBackground(okColor);
-				} 
+				//name or addr address input 
+				if ((c == nameTf) || (c == addrTf))  
+					setCheckState((!c.getText().equals("")), c);
 				//tel input
-				if (c == telTf) {
-					if (!c.getText().matches("[0-9]{11,}+")) {
-						c.setBackground(errColor);
-						c.requestFocusInWindow();
-					} else c.setBackground(okColor);
-				}
+				if (c == telTf) 
+					setCheckState((c.getText().matches("\\+*[0-9]{10,}+")), c);
+			}
+			
+			//set the check result
+			private void setCheckState(boolean state, JTextComponent c) {
+				if (c == nameTf) name = state;
+				if (c == telTf) tel = state;
+				if (c == addrTf) addr = state;
+				checkOk = (name && tel && addr);
+				if (state) 
+					c.setBackground(okColor);
+				else 
+					c.setBackground(errColor);
 			}
 		}
+		
 		
 		/**
 		 * Initialize inputs for edit
@@ -490,9 +546,19 @@ public class ClientView extends JPanel implements
 			
 			//set to UI
 			nameTf.setText(name);
-			telTf.setText(tel);
-			addrTf.setText(addr);
-			noteTa.setText(note);
+			telTf.setText(tel);   
+			addrTf.setText(addr); 
+			noteTa.setText(note); 
+			
+			//fired focusLost()
+			JComponent[] c = new JComponent[3];
+			c[0] = nameTf; c[1] = telTf; c[2] = addrTf;
+			for (int i = 0; i < c.length; i++) {
+				FocusEvent fe = new FocusEvent(c[i], FocusEvent.FOCUS_LOST);
+				FocusListener[] fl = c[i].getFocusListeners();
+				for (int j = 0; j < fl.length; j++) fl[j].focusLost(fe);
+			}
+			okBtn.requestFocusInWindow();
 		 }
 		
 		/**
@@ -500,9 +566,22 @@ public class ClientView extends JPanel implements
 		 * @param langRes initialized language properties
 		 * @author drunia
 		 */
-		public void localize(Properties langRes) {
-			if (langRes == null) langRes = Settings.get().getLangResources();
-			setTitle(langRes.getProperty("CLI_ADD_DIALOG_TITTLE"));
+		public void localize() {
+			Properties langRes = Settings.get().getLangResources();
+			if (isEdit)
+				setTitle(langRes.getProperty("CLI_EDIT_DIALOG_TITTLE"));
+			else
+				setTitle(langRes.getProperty("CLI_ADD_DIALOG_TITTLE"));
+			//labels
+			nameLb.setText(langRes.getProperty("CLI_INFO_NAME") + ":");
+			telLb.setText(langRes.getProperty("CLI_INFO_TEL") + ":");
+			addrLb.setText(langRes.getProperty("CLI_INFO_ADDRESS") + ":");
+			noteLb.setText(langRes.getProperty("CLI_INFO_NOTES") + ":");
+			//buttons
+			okBtn.setText(langRes.getProperty("ROOT_BTN_OK"));
+			cancelBtn.setText(langRes.getProperty("ROOT_BTN_CANCEL"));
+			//messages
+			errCheckMsg = langRes.getProperty("CLI_ADD_ERR_CHKMSG");
 		}
 	}
 } 

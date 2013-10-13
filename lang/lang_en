@@ -2,6 +2,8 @@
 ROOT_TITLE=Main application window
 ROOT_MENU_SETTINGS=Settings
 ROOT_MENU_LANGS=Language
+ROOT_BTN_OK=OK
+ROOT_BTN_CANCEL=Cancel
 
 #Category view
 CAT_VIEW_TITTLE=Products category
@@ -22,7 +24,8 @@ CLI_ADD_BTN=Add
 CLI_DEL_BTN=Delete
 CLI_EDIT_BTN=Edit
 CLI_UPD_BTN=Update
-CLI_ADD_DIALOG_TITTLE=Add/Edit client
+CLI_ADD_DIALOG_TITTLE=Add client
+CLI_EDIT_DIALOG_TITTLE=Edit client
 CLI_INFO_NAME=Name
 CLI_INFO_TEL=Telephone
 CLI_INFO_ADDRESS=Address

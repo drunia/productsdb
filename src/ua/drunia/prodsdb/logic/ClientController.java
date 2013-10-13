@@ -116,8 +116,8 @@ public class ClientController extends Controller {
 		String newNotes) {
 		if (!db.beginTransaction()) return false;
 		String sql = "UPDATE clients SET client_name = '" + newName +
-			"', SET client_tel = '" + newTel + "', SET client_address = '" + newAddress +
-			"', SET client_notes = '" + newNotes + "' WHERE client_id = '" + editId + "';";
+			"', client_tel = '" + newTel + "', client_address = '" + newAddress +
+			"', client_notes = '" + newNotes + "' WHERE client_id = '" + editId + "';";
 		boolean res = (db.executeUpdate(sql) > 0);
 		db.commit();
 		if (res) ui.updateUI(this);

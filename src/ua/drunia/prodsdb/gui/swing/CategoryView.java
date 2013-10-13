@@ -36,20 +36,22 @@ public class CategoryView extends JPanel implements
 	 */
 	private class AddDialog extends JDialog {
 		private JPanel editPanel = new JPanel();
-		private JButton okBtn = new JButton("Ок");
-		private JButton cancelBtn = new JButton("Отмена");
+		private JButton okBtn = new JButton("OK");
+		private JButton cancelBtn = new JButton("Cancel");
 		private JComboBox<Category> catCmbBox = new JComboBox<Category>();
 		private JTextField catNameTf = new JTextField();
 		private JTextArea descArea = new JTextArea();
-		private JLabel parentLb = new JLabel("Родительская категория:");
-		private JLabel nameLb = new JLabel("Название категории:");
-		private JLabel descLb = new JLabel("Описание категории:");
+		private JLabel parentLb = new JLabel("Parent category:");
+		private JLabel nameLb = new JLabel("Category name:");
+		private JLabel descLb = new JLabel("Category description:");
+		private boolean isEdit;
 		
 		public AddDialog(boolean isEdit) {
-			super(prodsdb, "Добавление категории", true);
+			super(prodsdb, "Add/Edit category", true);
+			this.isEdit = isEdit;
 			setModal(true);
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			setSize(600, 250);
+			setSize(500, 250);
 			setLocationRelativeTo(prodsdb);
 			
 			//get selected node for editing or adding new
@@ -63,15 +65,12 @@ public class CategoryView extends JPanel implements
 			
 			//init categories list
 			Category root = new Category();
-			root.name = "Корень";
+			root.name = "All categories";
 			catCmbBox.addItem(root);
 			for (int i = 0; i < cats.size(); i++) {
 				catCmbBox.addItem(cats.get(i));
 				if (isEdit) {
-					DefaultMutableTreeNode parent = 
-						(DefaultMutableTreeNode) node.getParent();
-					if (parent == null) parent = node;
-					Category c = (Category) parent.getUserObject();
+					Category c = (Category) node.getUserObject();
 					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
 				}
 			}
@@ -101,6 +100,20 @@ public class CategoryView extends JPanel implements
 			JPanel btnPanel = new JPanel(flowLay);
 			btnPanel.add(okBtn); btnPanel.add(cancelBtn);
 			add(btnPanel, BorderLayout.PAGE_END);
+			
+			//localize UI
+			localize();
+		}
+		
+		public void localize() {
+			Properties langRes = Settings.get().getLangResources();
+			if (isEdit)
+				setTitle(langRes.getProperty("CAT_EDIT_DIALOG_TITTLE"));
+			else
+				setTitle(langRes.getProperty("CAT_ADD_DIALOG_TITTLE"));
+			parentLb.setText(langRes.getProperty("CAT_PARENT_LB") + ":");
+			nameLb.setText(langRes.getProperty("CAT_NAME_LB") + ":");
+			descLb.setText(langRes.getProperty("CAT_DESC_LB") + ":");
 		}
 	}
 	
@@ -116,11 +129,11 @@ public class CategoryView extends JPanel implements
 		public void valueChanged(TreeSelectionEvent e) {
 			DefaultMutableTreeNode node = 
 				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-			if (node == null || node == rootNode) return;
+			if (node == null) return;
+			if (node == rootNode) catInfo.setText("");
 			//insert description in catInfo
 			Category c = (Category) node.getUserObject();
-			catInfo.setText("cat_id  = " + c.cat_id + "\nparent_id = " +
-				c.parent_id + "\n\n" + c.description);
+			catInfo.setText(c.description);
 		}
 	}
 
