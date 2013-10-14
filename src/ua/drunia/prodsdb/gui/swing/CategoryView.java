@@ -22,8 +22,7 @@ public class CategoryView extends JPanel implements
 	private JTree tree;
 	private JScrollPane catScroll;
 	private JButton addCatBtn, delCatBtn, updCatBtn;
-	private JSplitPane split;
-	private JTextArea catInfo;
+	private JLabel catInfo;
 	private DefaultMutableTreeNode rootNode;
 	private ArrayList<Category> cats;
 	private Category root;
@@ -69,7 +68,7 @@ public class CategoryView extends JPanel implements
 			catCmbBox.addItem(root);
 			for (int i = 0; i < cats.size(); i++) {
 				catCmbBox.addItem(cats.get(i));
-				if (isEdit) {
+				if (node != null) {
 					Category c = (Category) node.getUserObject();
 					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
 				}
@@ -105,6 +104,10 @@ public class CategoryView extends JPanel implements
 			localize();
 		}
 		
+		/**
+		 * Localize dialog UI
+		 * @author drunia
+		 */
 		public void localize() {
 			Properties langRes = Settings.get().getLangResources();
 			if (isEdit)
@@ -117,7 +120,7 @@ public class CategoryView extends JPanel implements
 		}
 	}
 	
-	/////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Realization of TreeSelectionListener inteface
@@ -129,15 +132,17 @@ public class CategoryView extends JPanel implements
 		public void valueChanged(TreeSelectionEvent e) {
 			DefaultMutableTreeNode node = 
 				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-			if (node == null) return;
-			if (node == rootNode) catInfo.setText("");
+			if (node == null || node == rootNode) {
+				catInfo.setText("");
+				return;
+			}
 			//insert description in catInfo
 			Category c = (Category) node.getUserObject();
-			catInfo.setText(c.description);
+			catInfo.setText("<html>" + c.description + "</html>");
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Class wrapper for data from database
@@ -159,7 +164,7 @@ public class CategoryView extends JPanel implements
 		}
 	}
 	
-	////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Constructor of view Category
@@ -175,7 +180,7 @@ public class CategoryView extends JPanel implements
 		cc = new CategoryController(prodsdb.getDatabase(), this);
 		cc.setSqlResultListener(this);
 		
-		//create buttons and place him on panel
+		//create buttons 
 		//add button
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
@@ -206,12 +211,13 @@ public class CategoryView extends JPanel implements
 			}
 		});
 		
-		//buttons panel
+		//place buttons on panel
 		JPanel btnPanel = new JPanel();
 		btnPanel.add(addCatBtn);
 		btnPanel.add(delCatBtn);
 		btnPanel.add(updCatBtn);
-		add(btnPanel, BorderLayout.PAGE_END);
+		((FlowLayout) btnPanel.getLayout()).setAlignment(FlowLayout.LEFT);
+		add(btnPanel, BorderLayout.PAGE_START);
 		
 		//categories tree
 		Dimension minSize = new Dimension(200, 200);
@@ -226,19 +232,14 @@ public class CategoryView extends JPanel implements
 		tree.getSelectionModel().setSelectionMode(
 			TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelListener());
+		add(new JScrollPane(tree), BorderLayout.CENTER);
 		
-		//info JTextArea for category
-		catInfo = new JTextArea();
-		catInfo.setEditable(false);
-		catInfo.setMinimumSize(minSize);
-		
-		//splitter
-		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		split.setLeftComponent(tree);
-		split.setRightComponent(catInfo);
-		split.setDividerLocation(200);
-		
-		add(split, BorderLayout.CENTER);
+		//info JLabel for category
+		catInfo = new JLabel();
+		JScrollPane infoScroll = new JScrollPane(catInfo);
+		infoScroll.setPreferredSize(new Dimension(0, 40));
+		infoScroll.setBorder(null);
+		add(infoScroll, BorderLayout.PAGE_END);
 		
 		//select all categories from database
 		cc.getCategories(1);

@@ -361,7 +361,7 @@ public class ClientView extends JPanel implements
 		private JTextField nameTf, telTf, addrTf;
 		private JTextArea noteTa;
 		private JButton okBtn, cancelBtn;
-		private boolean checkOk;
+		private CheckInput checkInput;
 		private boolean isEdit;
 		private String errCheckMsg;
 		
@@ -384,16 +384,20 @@ public class ClientView extends JPanel implements
 			noteLb = new JLabel("Note:");
 			
 			//inputs
-			InputChecker ichecker = new InputChecker();
-			nameTf = new JTextField(); nameTf.addFocusListener(ichecker);
-			telTf = new JTextField(); telTf.addFocusListener(ichecker);
-			addrTf = new JTextField(); addrTf.addFocusListener(ichecker);
+			nameTf = new JTextField();
+			telTf = new JTextField(); 
+			addrTf = new JTextField(); 
+			
+			//add inputs for check input format
+			checkInput = new CheckInput();
+			checkInput.addInput(nameTf, ".+", "Field not be empty");
+			checkInput.addInput(telTf, "\\+*[0-9]{10,}", "Error tel format");
+			checkInput.addInput(addrTf, ".+", "Field not be empty");
 			
 			noteTa = new JTextArea();
 			noteTa.setLineWrap(true);
 			JScrollPane noteScroll = new JScrollPane(noteTa);
 			noteScroll.setPreferredSize(new Dimension(0, 50));
-			noteTa.addFocusListener(ichecker);
 			
 			//buttons
 			BtnActionListener bal = new BtnActionListener();
@@ -459,7 +463,7 @@ public class ClientView extends JPanel implements
 				boolean res = false;
 				//OK button
 				if (b == okBtn) {
-					if (checkOk) {
+					if (checkInput.doCheck()) {
 						String name = nameTf.getText();
 						String tel  = telTf.getText();
 						String addr = addrTf.getText();
@@ -470,61 +474,11 @@ public class ClientView extends JPanel implements
 							int editId = Integer.parseInt(tm.rows.get(selRow)[ID_COLUMN]);
 							res = cc.editClient(editId, name, tel, addr, note);
 						} else res = cc.addClient(name, tel, addr, note);;
-					} else error(new Exception(errCheckMsg));
+					} else error(new Exception(checkInput.getErrCheckMessage()));
 				}
 				//Cancel button
 				if (b == cancelBtn) res = true;
 				if (res) dispose();
-			}
-		}
-		
-		/**
-		 * Helper class for check inputted data
-		 * @author drunia
-		 */
-		private class InputChecker extends FocusAdapter {
-			private final Color errColor = new Color(255, 209, 209);
-			private final Color okColor = new Color(236, 255, 209);
-			private boolean name, tel, addr;
-			
-			/**
-			 * Default constructor
-			 * If isEdit = true vars name, tel, addr set to true
-			 * @author drunia
-			 */
-			public InputChecker() {
-				if (isEdit) {
-					name = true;
-					tel  = true;
-					addr = true;
-				}
-			}
-			
-			/**
-			 * Called when focus is lost
-			 * @author drunia
-			 */
-			@Override
-			public void focusLost(FocusEvent e) {
-				JTextComponent c = (JTextComponent) e.getSource();
-				//name or addr address input 
-				if ((c == nameTf) || (c == addrTf))  
-					setCheckState((!c.getText().equals("")), c);
-				//tel input
-				if (c == telTf) 
-					setCheckState((c.getText().matches("\\+*[0-9]{10,}+")), c);
-			}
-			
-			//set the check result
-			private void setCheckState(boolean state, JTextComponent c) {
-				if (c == nameTf) name = state;
-				if (c == telTf) tel = state;
-				if (c == addrTf) addr = state;
-				checkOk = (name && tel && addr);
-				if (state) 
-					c.setBackground(okColor);
-				else 
-					c.setBackground(errColor);
 			}
 		}
 		
@@ -550,14 +504,6 @@ public class ClientView extends JPanel implements
 			addrTf.setText(addr); 
 			noteTa.setText(note); 
 			
-			//fired focusLost()
-			JComponent[] c = new JComponent[3];
-			c[0] = nameTf; c[1] = telTf; c[2] = addrTf;
-			for (int i = 0; i < c.length; i++) {
-				FocusEvent fe = new FocusEvent(c[i], FocusEvent.FOCUS_LOST);
-				FocusListener[] fl = c[i].getFocusListeners();
-				for (int j = 0; j < fl.length; j++) fl[j].focusLost(fe);
-			}
 			okBtn.requestFocusInWindow();
 		 }
 		
