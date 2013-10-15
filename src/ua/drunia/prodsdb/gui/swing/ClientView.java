@@ -37,6 +37,8 @@ public class ClientView extends JPanel implements
 	private RootFrame prodsdb;
 	private ClientController cc;
 	private String cliName, cliTel, cliAddress, cliNotes;
+	private CliPopupMenuListener popupListener = new CliPopupMenuListener();
+	private JScrollPane cliScroll;
 	
 	/**
 	 * Constructor of ClientView
@@ -77,9 +79,11 @@ public class ClientView extends JPanel implements
 		
 		//table 
 		cliTable = new JTable();
+		cliTable.addMouseListener(popupListener);
 		cliTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		cliTable.getSelectionModel().addListSelectionListener(new CliTableSelectionListener());
-		add(new JScrollPane(cliTable), BorderLayout.CENTER);
+		cliScroll = new JScrollPane(cliTable);
+		add(cliScroll, BorderLayout.CENTER);
 		
 		//info label
 		infoLabel = new JLabel();
@@ -90,7 +94,6 @@ public class ClientView extends JPanel implements
 	}
 	
 
-	
 	//addCliBtn events handler class
 	private class AddCliBtnListener implements ActionListener {
 		@Override
@@ -125,7 +128,7 @@ public class ClientView extends JPanel implements
 	private class UpdCliBtnListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			cc.getClients(1);
+			updateUI(this);
 		}
 	}
 	
@@ -139,8 +142,8 @@ public class ClientView extends JPanel implements
 			infoLabel.setVisible(false);
 			return;
 		} else infoLabel.setVisible(true);
-		CliTableModel model = (CliTableModel) cliTable.getModel();
 		//build html string
+		CliTableModel model = (CliTableModel) cliTable.getModel();
 		String html = "<html><table><tr><td>" + cliName +
 			":</td><td>" + model.rows.get(rowIndex)[1] + "</td></tr>" +
 			"<tr><td>" + cliTel + ":</td><td>" + model.rows.get(rowIndex)[2] +
@@ -160,6 +163,7 @@ public class ClientView extends JPanel implements
 		if (callerId == 1) {
 			cliTable.setColumnModel(new CliTableColumnModel());
 			cliTable.setModel(new CliTableModel(rs));
+			return true;
 		}
 		
 		//default return statement if event not handled
@@ -174,6 +178,10 @@ public class ClientView extends JPanel implements
 	public void updateUI(Object source) {
 		//re-selecting clients from database
 		cc.getClients(1);
+		
+		//set visible last row
+        Rectangle r = cliTable.getCellRect(cliTable.getRowCount()-1, 0, true);   
+        cliScroll.getViewport().scrollRectToVisible(r); 
 	}
 	
 	/**
@@ -224,10 +232,68 @@ public class ClientView extends JPanel implements
 		if (colModel.getColumnCount() == colModel.MAX_COLUMNS) colModel.localize();
 		//localize controller 
 		cc.localize(langRes);
+		//localize popup menu
+		popupListener.localize(langRes);
 
 	}
 	
 	///////////////////////////////Hepler inner classes//////////////////////////////////
+	
+	/**
+	 * Popup menu class
+	 * @author drunia
+	 */
+	private class CliPopupMenuListener extends MouseAdapter {
+		private JPopupMenu popupMenu   = new JPopupMenu();
+		private JMenuItem delMenuItem  = new JMenuItem(); 
+		private JMenuItem editMenuItem = new JMenuItem();
+		private JMenuItem updMenuItem  = new JMenuItem();
+		private PopupActionListener actionListener = new PopupActionListener(); 
+		
+		//default constructor
+		public CliPopupMenuListener() {
+			delMenuItem.addActionListener(actionListener);
+			editMenuItem.addActionListener(actionListener);
+			updMenuItem.addActionListener(actionListener);
+			popupMenu.add(delMenuItem);
+			popupMenu.add(editMenuItem);
+			popupMenu.add(updMenuItem);
+		}
+		
+		//localize popup menu items
+		public void localize(Properties langRes) {
+			delMenuItem.setText(langRes.getProperty("CLI_DEL_BTN"));
+			editMenuItem.setText(langRes.getProperty("CLI_EDIT_BTN"));
+			updMenuItem.setText(langRes.getProperty("CLI_UPD_BTN"));
+		}
+		
+		//click handler
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if(!e.isPopupTrigger() || cliTable.getSelectedRow() == -1) return;
+			popupMenu.show(e.getComponent(), e.getX(), e.getY());
+			
+		}
+		
+		//menu action listener
+		private class PopupActionListener implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//delete
+				if (e.getSource() == delMenuItem) {
+					delCliBtn.doClick();
+				}
+				//edit
+				if (e.getSource() == editMenuItem) {
+					editCliBtn.doClick();
+				}			
+				//update
+				if (e.getSource() == updMenuItem) {
+					updCliBtn.doClick();
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Table model class for clients
@@ -345,7 +411,6 @@ public class ClientView extends JPanel implements
 			if (e.getValueIsAdjusting()) return;
 			int selectedRow = cliTable.getSelectedRow();
 			publishInfo(selectedRow);
-
 		}
 	}
 	
@@ -363,7 +428,7 @@ public class ClientView extends JPanel implements
 		private JButton okBtn, cancelBtn;
 		private CheckInput checkInput;
 		private boolean isEdit;
-		private String errCheckMsg;
+		private String errInputMsg;
 		
 		/**
 		 * Default constructor
@@ -387,12 +452,6 @@ public class ClientView extends JPanel implements
 			nameTf = new JTextField();
 			telTf = new JTextField(); 
 			addrTf = new JTextField(); 
-			
-			//add inputs for check input format
-			checkInput = new CheckInput();
-			checkInput.addInput(nameTf, ".+", "Field not be empty");
-			checkInput.addInput(telTf, "\\+*[0-9]{10,}", "Error tel format");
-			checkInput.addInput(addrTf, ".+", "Field not be empty");
 			
 			noteTa = new JTextArea();
 			noteTa.setLineWrap(true);
@@ -446,6 +505,12 @@ public class ClientView extends JPanel implements
 			
 			//localize
 			localize();
+			
+			//add inputs for check input format
+			checkInput = new CheckInput();
+			checkInput.addInput(nameTf, ".+", errInputMsg + "\nERR:Field not be empty");
+			checkInput.addInput(telTf, "\\+*[0-9]{10,}", errInputMsg + "\nERR:Error tel format");
+			checkInput.addInput(addrTf, ".+", errInputMsg + "\nERR:Field not be empty");
 				
 			//show
 			if (isEdit) fillForEdit();
@@ -478,7 +543,9 @@ public class ClientView extends JPanel implements
 				}
 				//Cancel button
 				if (b == cancelBtn) res = true;
-				if (res) dispose();
+				if (res) {
+					dispose();
+				}
 			}
 		}
 		
@@ -527,7 +594,7 @@ public class ClientView extends JPanel implements
 			okBtn.setText(langRes.getProperty("ROOT_BTN_OK"));
 			cancelBtn.setText(langRes.getProperty("ROOT_BTN_CANCEL"));
 			//messages
-			errCheckMsg = langRes.getProperty("CLI_ADD_ERR_CHKMSG");
+			errInputMsg = langRes.getProperty("ROOT_ERR_INPUT_FORMAT");
 		}
 	}
 } 

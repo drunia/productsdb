@@ -4,11 +4,13 @@ ROOT_MENU_SETTINGS=Настройки
 ROOT_MENU_LANGS=Язык
 ROOT_BTN_OK=ОК
 ROOT_BTN_CANCEL=Отмена
+ROOT_ERR_INPUT_FORMAT=Поле не заполнено или не отвечает формату заполнения поля
 
 #Category view
 CAT_VIEW_TITTLE=Категории товаров
 CAT_TREE_ROOT=Все категории
 CAT_ADD_BTN=Добавить
+CAT_EDIT_BTN=Редактировать
 CAT_DEL_BTN=Удалить
 CAT_UPD_BTN=Обновить
 CAT_ADD_DIALOG_TITTLE=Добавить категорию
@@ -30,7 +32,6 @@ CLI_EDIT_BTN=Редактировать
 CLI_UPD_BTN=Обновить
 CLI_ADD_DIALOG_TITTLE=Добавить покупателя
 CLI_EDIT_DIALOG_TITTLE=Редактировать покупателя
-CLI_ADD_ERR_CHKMSG=Не все поля заполнены или заполнены с ошибкой
 CLI_INFO_NAME=Имя
 CLI_INFO_TEL=Телефон
 CLI_INFO_ADDRESS=Адресс

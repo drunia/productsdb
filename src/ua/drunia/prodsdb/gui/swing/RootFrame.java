@@ -185,7 +185,7 @@ public class RootFrame extends JFrame implements IUserUI {
 	
 	//called when model has want show error
 	public void error(Exception e) {
-		JOptionPane.showMessageDialog(null,  e, "Ошибка", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null,  e.getMessage(), "ERROR", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	//called when model has want something confirm

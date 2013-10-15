@@ -21,7 +21,7 @@ public class CategoryView extends JPanel implements
 	private CategoryController cc;
 	private JTree tree;
 	private JScrollPane catScroll;
-	private JButton addCatBtn, delCatBtn, updCatBtn;
+	private JButton addCatBtn, editCatBtn, delCatBtn, updCatBtn;
 	private JLabel catInfo;
 	private DefaultMutableTreeNode rootNode;
 	private ArrayList<Category> cats;
@@ -69,6 +69,7 @@ public class CategoryView extends JPanel implements
 			for (int i = 0; i < cats.size(); i++) {
 				catCmbBox.addItem(cats.get(i));
 				if (node != null) {
+					
 					Category c = (Category) node.getUserObject();
 					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
 				}
@@ -185,6 +186,14 @@ public class CategoryView extends JPanel implements
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				new AddDialog(false).setVisible(true);
+			}
+		});
+		
+		//edit button
+		editCatBtn = new JButton("Edit category");
+		editCatBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				new AddDialog(true).setVisible(true);
 			}
 		});
@@ -214,6 +223,7 @@ public class CategoryView extends JPanel implements
 		//place buttons on panel
 		JPanel btnPanel = new JPanel();
 		btnPanel.add(addCatBtn);
+		btnPanel.add(editCatBtn);
 		btnPanel.add(delCatBtn);
 		btnPanel.add(updCatBtn);
 		((FlowLayout) btnPanel.getLayout()).setAlignment(FlowLayout.LEFT);
