@@ -44,6 +44,7 @@ public class CategoryView extends JPanel implements
 		private JLabel nameLb = new JLabel("Category name:");
 		private JLabel descLb = new JLabel("Category description:");
 		private boolean isEdit;
+		private Category selCategory;
 		
 		public AddDialog(boolean isEdit) {
 			super(prodsdb, "Add/Edit category", true);
@@ -56,7 +57,13 @@ public class CategoryView extends JPanel implements
 			//get selected node for editing or adding new
 			DefaultMutableTreeNode node = 
 				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-			
+			selCategory = (Category) node.getUserObject();		
+			Category cat = selCategory;
+			if (isEdit) {
+				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+				cat = (Category) parent.getUserObject();
+			}
+	
 			GridLayout gridLay = new GridLayout(3, 2);
 			gridLay.setVgap(5); gridLay.setHgap(5);
 			editPanel.setLayout(gridLay);
@@ -68,11 +75,8 @@ public class CategoryView extends JPanel implements
 			catCmbBox.addItem(root);
 			for (int i = 0; i < cats.size(); i++) {
 				catCmbBox.addItem(cats.get(i));
-				if (node != null) {
-					
-					Category c = (Category) node.getUserObject();
-					if (c == cats.get(i)) catCmbBox.setSelectedItem(c);
-				}
+				if (cat == cats.get(i)) 
+					catCmbBox.setSelectedItem(cat);
 			}
 			editPanel.add(catCmbBox);
 			editPanel.add(nameLb);
@@ -87,13 +91,19 @@ public class CategoryView extends JPanel implements
 			okBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					Category c = (Category) catCmbBox.getSelectedItem();
+					if (AddDialog.this.isEdit) 
+						cc.editCategory(selCategory.cat_id, c.cat_id,
+							catNameTf.getText(), descArea.getText());
+					else
+						cc.addCategory(c.cat_id, catNameTf.getText(), descArea.getText());
+					dispose();
 				}
 			});
 			cancelBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					dispose();
 				}
 			});
 			FlowLayout flowLay = new FlowLayout();
@@ -103,6 +113,18 @@ public class CategoryView extends JPanel implements
 			
 			//localize UI
 			localize();
+			
+			//initialize components for edit
+			if (isEdit) fillForEdit(selCategory);
+		}
+		
+		/**
+		 * Initialize component for edit category
+		 * @author drunia
+		 */
+		public void fillForEdit(Category editCat) {
+			catNameTf.setText(editCat.name);
+			descArea.setText(editCat.description);
 		}
 		
 		/**
@@ -134,12 +156,18 @@ public class CategoryView extends JPanel implements
 			DefaultMutableTreeNode node = 
 				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 			if (node == null || node == rootNode) {
+				//disable edit buttons
+				editCatBtn.setEnabled(false);
+				delCatBtn.setEnabled(false);
 				catInfo.setText("");
 				return;
 			}
 			//insert description in catInfo
 			Category c = (Category) node.getUserObject();
 			catInfo.setText("<html>" + c.description + "</html>");
+			//enable edit buttons
+			editCatBtn.setEnabled(true);
+			delCatBtn.setEnabled(true);
 		}
 	}
 
@@ -186,6 +214,9 @@ public class CategoryView extends JPanel implements
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				DefaultMutableTreeNode n = 
+					(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				if (n == null) return;
 				new AddDialog(false).setVisible(true);
 			}
 		});
@@ -194,6 +225,9 @@ public class CategoryView extends JPanel implements
 		editCatBtn = new JButton("Edit category");
 		editCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				DefaultMutableTreeNode n = 
+					(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+				if (n == rootNode || n == null) return;
 				new AddDialog(true).setVisible(true);
 			}
 		});
@@ -266,6 +300,9 @@ public class CategoryView extends JPanel implements
 		switch (callerId) {
 			case 1: 
 				try {
+					//disable edit buttons
+					editCatBtn.setEnabled(false);
+					delCatBtn.setEnabled(false);
 					return buildTreeFromDatabase(rs);
 				} catch (SQLException e) {
 					log.warning(e.toString());

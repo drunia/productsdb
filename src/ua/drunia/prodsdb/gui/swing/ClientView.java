@@ -60,9 +60,11 @@ public class ClientView extends JPanel implements
 		addCliBtn.addActionListener(new AddCliBtnListener());
 		//edit
 		editCliBtn = new JButton();
+		editCliBtn.setEnabled(false);
 		editCliBtn.addActionListener(new EditCliBtnListener());
 		//delete
 		delCliBtn = new JButton();
+		delCliBtn.setEnabled(false);
 		delCliBtn.addActionListener(new DelCliBtnListener());
 		//update
 		updCliBtn = new JButton();
@@ -163,6 +165,9 @@ public class ClientView extends JPanel implements
 		if (callerId == 1) {
 			cliTable.setColumnModel(new CliTableColumnModel());
 			cliTable.setModel(new CliTableModel(rs));
+			//disable buttons 
+			editCliBtn.setEnabled(false);
+			delCliBtn.setEnabled(false);
 			return true;
 		}
 		
@@ -409,6 +414,8 @@ public class ClientView extends JPanel implements
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (e.getValueIsAdjusting()) return;
+			editCliBtn.setEnabled(true);
+			delCliBtn.setEnabled(true);
 			int selectedRow = cliTable.getSelectedRow();
 			publishInfo(selectedRow);
 		}
