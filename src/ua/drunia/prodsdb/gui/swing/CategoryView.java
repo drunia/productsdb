@@ -26,6 +26,7 @@ public class CategoryView extends JPanel implements
 	private DefaultMutableTreeNode rootNode;
 	private ArrayList<Category> cats;
 	private Category root;
+	private CatPopupMenuListener popupListener;
 	
 	//////////////////////////////////////////////////////////////////////////////////////
 	
@@ -71,8 +72,6 @@ public class CategoryView extends JPanel implements
 			editPanel.add(parentLb);
 			
 			//init categories list
-			Category root = new Category();
-			root.name = "All categories";
 			catCmbBox.addItem(root);
 			for (int i = 0; i < cats.size(); i++) {
 				catCmbBox.addItem(cats.get(i));
@@ -141,6 +140,8 @@ public class CategoryView extends JPanel implements
 			parentLb.setText(langRes.getProperty("CAT_PARENT_LB") + ":");
 			nameLb.setText(langRes.getProperty("CAT_NAME_LB") + ":");
 			descLb.setText(langRes.getProperty("CAT_DESC_LB") + ":");
+			okBtn.setText(langRes.getProperty("ROOT_BTN_OK"));
+			cancelBtn.setText(langRes.getProperty("ROOT_BTN_CANCEL"));
 		}
 	}
 	
@@ -165,7 +166,7 @@ public class CategoryView extends JPanel implements
 			}
 			//insert description in catInfo
 			Category c = (Category) node.getUserObject();
-			catInfo.setText("<html>" + c.description + "</html>");
+			catInfo.setText("<html><table><tr><td>" + c.description + "</td></tr></table></html>");
 			//enable edit buttons
 			editCatBtn.setEnabled(true);
 			delCatBtn.setEnabled(true);
@@ -196,6 +197,70 @@ public class CategoryView extends JPanel implements
 	
 	/////////////////////////////////////////////////////////////////////////
 	
+	private class CatPopupMenuListener extends MouseAdapter {
+		private JPopupMenu catPopupMenu = new JPopupMenu();
+		private JMenuItem addItem  = new JMenuItem();
+		private JMenuItem editItem = new JMenuItem();
+		private JMenuItem delItem  = new JMenuItem();
+		private JMenuItem updItem  = new JMenuItem();
+		private ActionListener popupActionListener;
+		
+		//default constructor
+		public CatPopupMenuListener() {
+			catPopupMenu.add(addItem);
+			catPopupMenu.add(editItem);
+			catPopupMenu.add(delItem);
+			catPopupMenu.add(updItem);
+			
+			//add action handlers
+			popupActionListener = new PopupActionListener();
+			addItem.addActionListener(popupActionListener);
+			editItem.addActionListener(popupActionListener);
+			delItem.addActionListener(popupActionListener);
+			updItem.addActionListener(popupActionListener);
+		}
+		
+		//class action listener from PopupMenu items
+		private class PopupActionListener implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Object item = e.getSource();
+				if (item == addItem) addCatBtn.doClick();
+				if (item == editItem) editCatBtn.doClick();
+				if (item == delItem) delCatBtn.doClick();
+				if (item == updItem) updCatBtn.doClick();
+			}
+		}
+		
+		//Event handler, called when mouse button released
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			DefaultMutableTreeNode n = 
+				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+			if (n == null) return;
+			if (n == rootNode) {
+				editItem.setEnabled(false);
+				delItem.setEnabled(false);
+			} else {
+				editItem.setEnabled(true);
+				delItem.setEnabled(true);
+			}
+			if (e.isPopupTrigger()) {
+				int rowUnderCursor = tree.getRowForLocation(e.getX(), e.getY());
+				if (rowUnderCursor != -1)
+					catPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+		}
+		
+		//localize Popup menu
+		public void localize(Properties langRes) {
+			addItem.setText(langRes.getProperty("CAT_ADD_BTN"));
+			editItem.setText(langRes.getProperty("CAT_EDIT_BTN"));
+			delItem.setText(langRes.getProperty("CAT_DEL_BTN"));
+			updItem.setText(langRes.getProperty("CAT_UPD_BTN"));
+		}
+	}
+	
 	/**
 	 * Constructor of view Category
 	 * @param prodsdb reference to root JFrame
@@ -210,9 +275,8 @@ public class CategoryView extends JPanel implements
 		cc = new CategoryController(prodsdb.getDatabase(), this);
 		cc.setSqlResultListener(this);
 		
-		//create buttons 
 		//add button
-		addCatBtn = new JButton("Добавить категорию");
+		addCatBtn = new JButton("Add category");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new AddDialog(false).setVisible(true);
@@ -231,7 +295,7 @@ public class CategoryView extends JPanel implements
 		});
 		
 		//delete buton
-		delCatBtn = new JButton("Удалить");
+		delCatBtn = new JButton("Delete category");
 		delCatBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -244,11 +308,11 @@ public class CategoryView extends JPanel implements
 		});
 		
 		//update button
-		updCatBtn = new JButton("Обновить");
+		updCatBtn = new JButton("Update categories");
 		updCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//update categories tree
-				cc.getCategories(1);
+				updateUI(this);
 			}
 		});
 		
@@ -274,14 +338,13 @@ public class CategoryView extends JPanel implements
 		tree.getSelectionModel().setSelectionMode(
 			TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelListener());
+		popupListener = new CatPopupMenuListener();
+		tree.addMouseListener(popupListener);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 		
 		//info JLabel for category
 		catInfo = new JLabel();
-		JScrollPane infoScroll = new JScrollPane(catInfo);
-		infoScroll.setPreferredSize(new Dimension(0, 40));
-		infoScroll.setBorder(null);
-		add(infoScroll, BorderLayout.PAGE_END);
+		add(catInfo, BorderLayout.PAGE_END);
 		
 		//select all categories from database
 		cc.getCategories(1);
@@ -373,6 +436,8 @@ public class CategoryView extends JPanel implements
 	public void updateUI(Object source) {
 		//re-selecting categories from database
 		cc.getCategories(1);
+		//clear desciption panel
+		catInfo.setText("");
 	}
 	
 	/**
@@ -412,9 +477,12 @@ public class CategoryView extends JPanel implements
 		tree.updateUI();
 		//buttons
 		addCatBtn.setText(langRes.getProperty("CAT_ADD_BTN"));
+		editCatBtn.setText(langRes.getProperty("CAT_EDIT_BTN"));
 		delCatBtn.setText(langRes.getProperty("CAT_DEL_BTN"));
 		updCatBtn.setText(langRes.getProperty("CAT_UPD_BTN"));
 		//localize controller 
 		cc.localize(langRes);
+		//localize popup menu
+		popupListener.localize(langRes);
 	}
 }
