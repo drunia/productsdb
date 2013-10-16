@@ -57,6 +57,7 @@ public class CategoryView extends JPanel implements
 			//get selected node for editing or adding new
 			DefaultMutableTreeNode node = 
 				(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+			if (node == null) node = rootNode;
 			selCategory = (Category) node.getUserObject();		
 			Category cat = selCategory;
 			if (isEdit) {
@@ -214,9 +215,6 @@ public class CategoryView extends JPanel implements
 		addCatBtn = new JButton("Добавить категорию");
 		addCatBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DefaultMutableTreeNode n = 
-					(DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-				if (n == null) return;
 				new AddDialog(false).setVisible(true);
 			}
 		});
