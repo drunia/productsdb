@@ -4,7 +4,7 @@ ROOT_MENU_SETTINGS=Настройки
 ROOT_MENU_LANGS=Язык
 ROOT_BTN_OK=ОК
 ROOT_BTN_CANCEL=Отмена
-ROOT_ERR_INPUT_FORMAT=Поле не заполнено или не отвечает формату заполнения поля
+ROOT_ERR_INPUT_FORMAT=Поле не заполнено или не отвечает формату заполнения!
 
 #Category view
 CAT_VIEW_TITTLE=Категории товаров

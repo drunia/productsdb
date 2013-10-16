@@ -46,6 +46,8 @@ public class CategoryView extends JPanel implements
 		private JLabel descLb = new JLabel("Category description:");
 		private boolean isEdit;
 		private Category selCategory;
+		private CheckInput checker = new CheckInput();
+		private String errInputMsg;
 		
 		public AddDialog(boolean isEdit) {
 			super(prodsdb, "Add/Edit category", true);
@@ -86,11 +88,15 @@ public class CategoryView extends JPanel implements
 			scrollDesc.setPreferredSize(new Dimension(0, 20));
 			add(scrollDesc, BorderLayout.CENTER);
 			add(editPanel, BorderLayout.PAGE_START);
-			
+						
 			//buttons
 			okBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					if (!checker.doCheck()) {
+						error(new Exception(checker.getErrCheckMessage()));
+						return;
+					}
 					Category c = (Category) catCmbBox.getSelectedItem();
 					if (AddDialog.this.isEdit) 
 						cc.editCategory(selCategory.cat_id, c.cat_id,
@@ -114,6 +120,9 @@ public class CategoryView extends JPanel implements
 			//localize UI
 			localize();
 			
+			//add inputs for check input format
+			checker.addInput(catNameTf, ".+", errInputMsg + "\nERR:Field not be empty");
+			
 			//initialize components for edit
 			if (isEdit) fillForEdit(selCategory);
 		}
@@ -133,6 +142,7 @@ public class CategoryView extends JPanel implements
 		 */
 		public void localize() {
 			Properties langRes = Settings.get().getLangResources();
+			errInputMsg = langRes.getProperty("ROOT_ERR_INPUT_FORMAT");	
 			if (isEdit)
 				setTitle(langRes.getProperty("CAT_EDIT_DIALOG_TITTLE"));
 			else
