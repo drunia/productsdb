@@ -2,6 +2,7 @@
 ROOT_TITLE=главное окно
 ROOT_MENU_SETTINGS=Настройки
 ROOT_MENU_LANGS=Язык
+ROOT_MENU_SKINS=Обложка
 ROOT_BTN_OK=ОК
 ROOT_BTN_CANCEL=Отмена
 ROOT_ERR_INPUT_FORMAT=Поле не заполнено или не отвечает формату заполнения!
@@ -32,7 +33,7 @@ CLI_EDIT_BTN=Редактировать
 CLI_UPD_BTN=Обновить
 CLI_ADD_DIALOG_TITTLE=Добавить покупателя
 CLI_EDIT_DIALOG_TITTLE=Редактировать покупателя
-CLI_INFO_NAME=Имя
+CLI_INFO_NAME=Ф.И.О
 CLI_INFO_TEL=Телефон
 CLI_INFO_ADDRESS=Адресс
 CLI_INFO_NOTES=Заметка

@@ -25,18 +25,20 @@ public class RootFrame extends JFrame implements IUserUI {
 	private Database db;
 	private JTabbedPane tabs;
 	private Settings settings = Settings.get();
-	private MenuBar menu; 
+	private MenuBar menu;
 	
 	/**
 	 * MainMenu class
 	 * @author drunia
 	 */
 	private class MenuBar extends JMenuBar {
-		private JMenu settingsMenu;
-		private JMenu langMenu;
+		private JMenu settingsMenu = new JMenu();
+		private JMenu langMenu = new JMenu();
+		private JMenu skinMenu = new JMenu();
+		private Map<String, String> lafsMap;
 		
-		//private inner-inner class action-handler
-		class ChangeLangListener implements ActionListener {
+		//private inner-inner class change language action handler
+		private class ChangeLangListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JMenuItem item = (JMenuItem) e.getSource();
@@ -47,16 +49,37 @@ public class RootFrame extends JFrame implements IUserUI {
 			}
 		}
 		
+		//private inner-inner class change LaF action handler
+		private class ChangeLaFListener implements ActionListener {
+			@Override 
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem item = (JMenuItem) e.getSource();
+				setLaF(item.getText());
+			}
+		}
+		
+		//set LookAndFeel
+		public void setLaF(String className) {
+			try {
+				UIManager.setLookAndFeel(lafsMap.get(className));
+				SwingUtilities.updateComponentTreeUI(RootFrame.this);
+				settings.setParam("ui.skin", className);
+			} catch(Exception ex) { 
+				log.warning("Error set LookAndFeel: " + ex.toString());
+			}
+		}
+		
 		/**
 		 * Default constructor
 		 * @author drunia
 		 */
-		public MenuBar() {
-			super();
-			settingsMenu = new JMenu();
+		public MenuBar() {			
+			//main setting menu
 			add(settingsMenu);
-			langMenu = new JMenu();
+			
+			//submenus
 			settingsMenu.add(langMenu);
+			settingsMenu.add(skinMenu);
 			
 			//find languages and add them to menu
 			ChangeLangListener changeLangListener = new ChangeLangListener();
@@ -66,13 +89,39 @@ public class RootFrame extends JFrame implements IUserUI {
 				Locale rootLocale = RootFrame.this.getLocale();
 				JRadioButtonMenuItem langMenuItem = 
 					new JRadioButtonMenuItem(langLocale.getDisplayLanguage());
-				langGroup.add(langMenuItem);
 				langMenuItem.setLocale(langLocale);
 				langMenuItem.addActionListener(changeLangListener);
 				langMenuItem.setSelected(
 					langLocale.getLanguage().equals(rootLocale.getLanguage()));
 				langMenu.add(langMenuItem);
+				//add item to lang group
+				langGroup.add(langMenuItem);
 			}
+			
+			//find LookAndFeels and add them to menu
+			lafsMap = getLookAndFeelsMap();
+			ChangeLaFListener changeLafListener = new ChangeLaFListener();
+			ButtonGroup lafGroup = new ButtonGroup();
+			for (String lafName : lafsMap.keySet()) {
+				JRadioButtonMenuItem skinMenuItem = new JRadioButtonMenuItem(lafName);
+				skinMenuItem.addActionListener(changeLafListener);
+				skinMenuItem.setSelected(lafName.equals(settings.getParam("ui.skin")));
+				skinMenu.add(skinMenuItem);
+				lafGroup.add(skinMenuItem);
+			}
+		}
+	
+		/**
+		 * Return all accesable LookAndFeels
+	     * @return String[] all accesable LookAndFeels
+		 * @author drunia
+		 */
+		private Map<String, String> getLookAndFeelsMap() {
+			Map<String, String> lafsMap = new HashMap<String, String>();
+			UIManager.LookAndFeelInfo[] lafInfos = UIManager.getInstalledLookAndFeels();
+			for (int i = 0; i < lafInfos.length; i++) 
+				lafsMap.put(lafInfos[i].getName(), lafInfos[i].getClassName());
+			return lafsMap;
 		}
 		
 		/**
@@ -83,18 +132,21 @@ public class RootFrame extends JFrame implements IUserUI {
 			Properties langRes = Settings.get().getLangResources();
 			settingsMenu.setText(langRes.getProperty("ROOT_MENU_SETTINGS"));
 			langMenu.setText(langRes.getProperty("ROOT_MENU_LANGS"));
+			skinMenu.setText(langRes.getProperty("ROOT_MENU_SKINS"));
 		}
 		
 	} 
 	
+	//WindowEvent Listener
 	private class RootFrameListener extends WindowAdapter {
+		//Save settings when window close
 		@Override
 		public void windowClosing(WindowEvent e) {
 			settings.save();
 		}
 	}
 	
-	//default constructor of main JFrame
+	//Default constructor of main JFrame
 	public RootFrame(Database db) {
 		super();
 		this.db = db;
@@ -128,6 +180,9 @@ public class RootFrame extends JFrame implements IUserUI {
 		//localize UI
 		localizeUI(getLocale(), tabs);
 		
+		//set LaF
+		String skin = settings.getParam("ui.skin");
+		if (skin != null) menu.setLaF(skin);
 	}
 	
 	/**
