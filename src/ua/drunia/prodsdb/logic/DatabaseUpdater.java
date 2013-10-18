@@ -115,7 +115,7 @@ public class DatabaseUpdater {
 		sql = "CREATE TABLE orders (" + 
 			"order_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
 			"order_articul TEXT NOT NULL, client_id INTEGER NOT NULL, " + 
-			"product_id INTEGER NOT NULL);";
+			"product_id INTEGER NOT NULL, order_date TEXT NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		return true;
