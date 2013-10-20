@@ -40,6 +40,7 @@ public class ClientController extends Controller {
 	
 	/**
 	 * Get all clients from database
+	 * @param callerId identificate who request this data
 	 * @author drunia
 	 */
 	public void getClients(int callerId) {
