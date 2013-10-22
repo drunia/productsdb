@@ -168,11 +168,14 @@ public class RootFrame extends JFrame implements IUserUI {
 		CategoryView cw = new CategoryView(this);
 		//create tab - view clients
 		ClientView clw = new ClientView(this);
+		//create tab - view orders
+		OrderView ow = new OrderView(this);
 		
 		//create JTabbedPane and add our tabs on
 		tabs = new JTabbedPane();
 		tabs.addTab("Категории товаров", cw);
 		tabs.addTab("Покупатели", clw);
+		tabs.addTab("Заказы", ow);
 		
 		//add JTabbedPane on main JFrame
 		add(tabs, BorderLayout.CENTER);

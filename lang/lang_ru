@@ -41,3 +41,11 @@ CLI_INFO_NOTES=Заметка
 #Client controller
 CLI_ASK_DELETE=Удалить выбраного покупателя?
 CLI_DELETE_WARN=Невозможно удалить покупателя, он числится в заказах
+
+#Order view
+ORD_VIEW_TITTLE=Заказы
+ORD_EDIT_BTN=Редактировать
+ORD_DEL_BTN=Удалить
+ORD_UPD_BTN=Обновить
+
+#Order controller
