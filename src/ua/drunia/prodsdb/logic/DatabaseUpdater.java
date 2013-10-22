@@ -96,7 +96,8 @@ public class DatabaseUpdater {
 		 */ 
 		sql = "CREATE TABLE clients (" + 
 			"client_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"name TEXT NOT NULL);";
+			"client_name TEXT NOT NULL, client_tel TEXT NOT NULL, client_address TEXT, " +
+			"client_notes TEXT);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		/*
@@ -109,11 +110,12 @@ public class DatabaseUpdater {
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 	   /*
-		* shoppinng table
+		* orders table
 		*/ 
-		sql = "CREATE TABLE shopping (" + 
-			"shop_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
-			"client_id INTEGER NOT NULL, product_id INTEGER NOT NULL);";
+		sql = "CREATE TABLE orders (" + 
+			"order_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + 
+			"order_articul TEXT NOT NULL, client_id INTEGER NOT NULL, " + 
+			"product_id INTEGER NOT NULL, order_date TEXT NOT NULL);";
 		if ((db.executeUpdate(sql) == -1)) return false; 
 		
 		return true;

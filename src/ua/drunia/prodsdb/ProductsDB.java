@@ -1,5 +1,5 @@
 /**
- * Main class JFrame of application
+ * Main class of application
  * @author drunia
  * @since 30.09.2013
  */
@@ -8,6 +8,7 @@ package ua.drunia.prodsdb;
 
 import javax.swing.*;
 import java.util.logging.*;
+import java.util.*;
 
 import ua.drunia.prodsdb.gui.swing.RootFrame;
 import ua.drunia.prodsdb.logic.Database;

@@ -1,0 +1,43 @@
+﻿#Main window
+ROOT_TITLE=главное окно
+ROOT_MENU_SETTINGS=Настройки
+ROOT_MENU_LANGS=Язык
+ROOT_MENU_SKINS=Обложка
+ROOT_BTN_OK=ОК
+ROOT_BTN_CANCEL=Отмена
+ROOT_ERR_INPUT_FORMAT=Поле не заполнено или не отвечает формату заполнения!
+
+#Category view
+CAT_VIEW_TITTLE=Категории товаров
+CAT_TREE_ROOT=Все категории
+CAT_ADD_BTN=Добавить
+CAT_EDIT_BTN=Редактировать
+CAT_DEL_BTN=Удалить
+CAT_UPD_BTN=Обновить
+CAT_ADD_DIALOG_TITTLE=Добавить категорию
+CAT_EDIT_DIALOG_TITTLE=Изменить категорию
+CAT_PARENT_LB=Родительская категория
+CAT_NAME_LB=Имя категории
+CAT_DESC_LB=Описание категории
+
+#Category controller
+CAT_ASK_DELETE=Удалить выбранную категорию?
+CAT_DELETE_WARN=Невозможно удалить категорию, на нее ссылаются некоторые продукты
+CAT_DELETE_SUB_WARN=Удаление не возможно, удалите сначала подкатегории
+
+#Clients view
+CLI_VIEW_TITTLE=Покупатели
+CLI_ADD_BTN=Добавить
+CLI_DEL_BTN=Удалить
+CLI_EDIT_BTN=Редактировать
+CLI_UPD_BTN=Обновить
+CLI_ADD_DIALOG_TITTLE=Добавить покупателя
+CLI_EDIT_DIALOG_TITTLE=Редактировать покупателя
+CLI_INFO_NAME=Ф.И.О
+CLI_INFO_TEL=Телефон
+CLI_INFO_ADDRESS=Адресс
+CLI_INFO_NOTES=Заметка
+
+#Client controller
+CLI_ASK_DELETE=Удалить выбраного покупателя?
+CLI_DELETE_WARN=Невозможно удалить покупателя, он числится в заказах

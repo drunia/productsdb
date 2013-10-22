@@ -1,0 +1,36 @@
+#Main window
+ROOT_TITLE=Main application window
+ROOT_MENU_SETTINGS=Settings
+ROOT_MENU_LANGS=Language
+ROOT_BTN_OK=OK
+ROOT_BTN_CANCEL=Cancel
+
+#Category view
+CAT_VIEW_TITTLE=Products category
+CAT_TREE_ROOT=All categories
+CAT_ADD_BTN=Add
+CAT_DEL_BTN=Delete
+CAT_UPD_BTN=Update
+CAT_ADD_DIALOG_TITTLE=Add/Edit category
+
+#Category controller
+CAT_ASK_DELETE=Delete selected category?
+CAT_DELETE_WARN=Can'ot delete category, she linked with products
+CAT_DELETE_SUB_WARN=Delete failed, delete first subcategories
+
+#Clients view
+CLI_VIEW_TITTLE=Clients
+CLI_ADD_BTN=Add
+CLI_DEL_BTN=Delete
+CLI_EDIT_BTN=Edit
+CLI_UPD_BTN=Update
+CLI_ADD_DIALOG_TITTLE=Add client
+CLI_EDIT_DIALOG_TITTLE=Edit client
+CLI_INFO_NAME=Name
+CLI_INFO_TEL=Telephone
+CLI_INFO_ADDRESS=Address
+CLI_INFO_NOTES=Note
+
+#Client controller
+CLI_ASK_DELETE=Delete selected client?
+CLI_DELETE_WARN=Can'ot delete client, him linked with orders
