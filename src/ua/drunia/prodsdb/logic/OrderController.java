@@ -6,6 +6,9 @@
  
 package ua.drunia.prodsdb.logic;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.logging.Logger;
 import ua.drunia.prodsdb.gui.IUserUI;
 import ua.drunia.prodsdb.util.LogUtil;
@@ -59,7 +62,7 @@ public class OrderController extends Controller {
 	public boolean addOrder(String articul, int client_id, int[] product_id) {
 		if (!db.beginTransaction()) return false;
 		String sql = null;
-		int datetime = Calendar.getInstance().getTimeInMillis(); 
+		long datetime = Calendar.getInstance().getTimeInMillis();
 		for (int i : product_id) {
 			sql = "INSERT INTO orders (order_articul, client_id, product_id, order_date) " +
 				"values ('" + articul + "', '" + client_id + "', '" + product_id[i] + "', '" + datetime + "');";
@@ -83,27 +86,27 @@ public class OrderController extends Controller {
 	public boolean editOrder(String articul, int[] product_id) {
 		if (!db.beginTransaction()) return false;
 		String sql = null;
-		int datatime  = 0;
+		int datetime  = 0;
 		int client_id = 0;
 		//get old order date & order client
 		try {
 			sql = "SELECT DISTINCT order_date, client_id FROM orders WHERE order_articul = '" + articul + "';";
-			int datatime = db.executeQuery(sql).getInt(1);
-			int client_id = db.executeQuery(sql).getInt(2);
+			datetime = db.executeQuery(sql).getInt(1);
+			client_id = db.executeQuery(sql).getInt(2);
 		} catch (SQLException e) {
 			db.rollback();
 			log.warning("Error in edit (GET OLD DATA) - " + e.toString());
 			return false;
 		}
 		//delete old order data
-		sql = "DELETE FROM orders WHERE articul = '" + editArticul + "';";
+		sql = "DELETE FROM orders WHERE articul = '" + articul + "';";
 		if (db.executeUpdate(sql) == 0) {
 			db.rollback();
-			log.warning("Error in edit order articul # = " + editArticul + " (Error delete old data)");
+			log.warning("Error in edit order articul # = " + articul + " (Error delete old data)");
 			return false;
 		}
 		//insert new order data 
-		for (i : products_id) {
+		for (int i : product_id) {
 			sql = "INSERT INTO orders (order_articul, client_id, product_id, order_date) " +
 				"values ('" + articul + "', '" + client_id + "', '" + product_id[i] + "', '" + datetime + "');";
 			if (db.executeUpdate(sql) == 0) {
@@ -123,9 +126,9 @@ public class OrderController extends Controller {
 	 * @author drunia
 	 */
 	public boolean removeOrder(String articul) {
-		if (!db.beginTransaction()) return;
+		if (!db.beginTransaction()) return false;
 		String sql = "DELETE FROM orders WHERE order_articul = '" + articul + "';";
-		if (db.executeUpdate == 0) {
+		if (db.executeUpdate(sql) == 0) {
 			db.rollback();
 			log.warning("Error remove articul " + articul + " from database !");
 			return false;
